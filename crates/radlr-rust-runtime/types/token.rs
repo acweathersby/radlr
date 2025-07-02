@@ -159,10 +159,7 @@ impl Token {
 
   #[inline(always)]
   pub fn from_range(start: &Token, end: &Token) -> Token {
-    Token {
-      inner: TokenRange::from_range(start.inner, end.inner),
-      input: start.input.clone(),
-    }
+    Token { inner: start.inner + end.inner, input: start.input.clone() }
   }
 
   #[inline(always)]
