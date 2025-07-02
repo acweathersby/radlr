@@ -5,7 +5,7 @@ Edit, compile, and integrate programming languages simply with RADLR.
 
 RADLR provides a range of tools to define, develop, and integrate DSLs in a variety of programming environments. 
 
-> Perquisite: Insure the Rust toolkit before attempting the following
+> Perquisite: Insure the Rust toolkit is installed before proceeding with the following
 
 # Install
 
