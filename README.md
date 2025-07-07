@@ -10,7 +10,7 @@ RADLR provides a range of tools to define, develop, and integrate DSLs in a vari
 # Install
 
 ```bash
-argo install --git https://github.com/acweathersby/radlr radlr-cli
+cargo install --git https://github.com/acweathersby/radlr radlr-cli
 ```
 
 # Usage
