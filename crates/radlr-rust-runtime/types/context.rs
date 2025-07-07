@@ -238,13 +238,17 @@ pub fn create_recovery_ctx<I: ParserInput, DB: ParserProducer<I>>(
   parser: &mut Box<dyn Parser<I>>,
   entry: EntryPoint,
 ) -> Result<RecCTX, ParserError> {
+  let mut ctx = parser.init(entry)?;
+  let len = input.len();
+  ctx.end_ptr = len;
+
   Ok(Box::new(RecoverableContext {
-    offset:            0,
-    entropy:           input.len() as isize * CHAR_USAGE_SCORE,
-    symbols:           vec![],
-    ctx:               parser.init(entry)?,
-    mode:              RecoveryMode::Normal,
-    failed_state:      Default::default(),
+    offset: 0,
+    entropy: len as isize * CHAR_USAGE_SCORE,
+    symbols: vec![],
+    ctx,
+    mode: RecoveryMode::Normal,
+    failed_state: Default::default(),
     last_failed_state: Default::default(),
   }))
 }

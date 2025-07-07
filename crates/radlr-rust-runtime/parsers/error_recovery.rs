@@ -417,7 +417,11 @@ fn drop_symbols(
   count: usize,
   end_offset: usize,
 ) {
-  if rec_ctx.symbols.len() == 0 {
+  
+  // Do not attempt to drop symbols if there are no symbols to drop (obviously),
+  // or there is no new input that can be consumed.
+
+  if rec_ctx.symbols.len() == 0 || (rec_ctx.ctx.end_ptr > 0 && rec_ctx.ctx.end_ptr <= rec_ctx.ctx.input_ptr) {
     return;
   };
 
