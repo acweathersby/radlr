@@ -1,9 +1,6 @@
 #![allow(unused)]
 use crate::{compile::states::build_states::StateConstructionError, proxy::Array};
-use radlr_rust_runtime::{
-  deprecate::RadlrParseError,
-  types::{BlameColor, ParserError, Token},
-};
+use radlr_rust_runtime::types::{BlameColor, ParserError, Token};
 use std::{
   hash::Hash,
   path::PathBuf,
@@ -182,8 +179,9 @@ impl RadlrError {
     }
   }
 
+  #[allow(deprecated)]
   /// Convert RadlrParseError into RadlrError
-  pub fn from_parse_error(err: RadlrParseError, path: PathBuf) -> RadlrError {
+  pub fn from_parse_error(err: radlr_rust_runtime::deprecate::RadlrParseError, path: PathBuf) -> RadlrError {
     Self::SourceError {
       loc:        err.loc,
       path:       path.to_str().unwrap().to_string(),
@@ -284,8 +282,9 @@ impl From<FromUtf16Error> for RadlrError {
   }
 }
 
-impl From<RadlrParseError> for RadlrError {
-  fn from(err: RadlrParseError) -> Self {
+#[allow(deprecated)]
+impl From<radlr_rust_runtime::deprecate::RadlrParseError> for RadlrError {
+  fn from(err: radlr_rust_runtime::deprecate::RadlrParseError) -> Self {
     Self::from_parse_error(err, Default::default())
   }
 }
@@ -361,7 +360,7 @@ impl std::fmt::Debug for RadlrError {
 }
 
 #[derive(Default)]
-#[cfg_attr(any(debug_assertions, auto_print_errors), derive(std::fmt::Debug))]
+#[cfg_attr(any(debug_assertions, feature = "auto_print_errors"), derive(std::fmt::Debug))]
 pub struct ErrorGroups {
   pub hints:    Vec<RadlrError>,
   pub warnings: Vec<RadlrError>,

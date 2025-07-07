@@ -2,19 +2,24 @@
 //! # RADLR LAB
 pub mod serialize;
 
+#[cfg(feature = "host")]
 use radlr_bytecode::compile_bytecode;
+
+#[cfg(feature = "host")]
 use radlr_core::{
   ParserClassification,
   ParserConfig,
   ParserStore,
-  RadlrGrammarDatabase,
   RadlrError,
   RadlrGrammar,
+  RadlrGrammarDatabase,
   RadlrIRParser,
   RadlrResult,
 };
 
+#[cfg(feature = "host")]
 use std::io;
+
 #[cfg(feature = "host")]
 use std::path::PathBuf;
 
@@ -47,6 +52,7 @@ pub enum WSResponseCodes {
   Pong           = 3,
 }
 
+#[cfg(feature = "host")]
 const DEFAULT_PORT: u16 = 15421;
 
 #[cfg(feature = "host")]
@@ -225,7 +231,6 @@ pub fn run_lab_server(port: Option<u16>) -> Result<(), RadlrError> {
 }
 
 #[cfg(feature = "host")]
-
 fn host_send_bytecode_db(
   parser: RadlrIRParser,
   websocket: &mut WebSocket<std::net::TcpStream>,

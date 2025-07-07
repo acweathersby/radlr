@@ -67,7 +67,7 @@ pub fn parse_with_recovery<I: ParserInput, DB: ParserProducer<I>>(
 fn handle_failed_contexts<I: ParserInput, DB: ParserProducer<I>>(
   failed_contexts: &mut Vec<(ParserState, RecCTX)>,
   input: &mut I,
-  db: &DB,
+  _db: &DB,
   best_failure: &mut Option<RecCTX>,
   parser: &mut Box<dyn Parser<I>>,
   pending: &mut ContextQueue<RecCTX>,
@@ -93,6 +93,7 @@ fn handle_failed_contexts<I: ParserInput, DB: ParserProducer<I>>(
 
       match rec_ctx.mode {
         RecoveryMode::Normal => {
+          dbg!(rec_ctx.ctx.input_ptr);
           // We fork our contexts into different recovery modes. This may create a large
           // number of independent contexts, but we'll likely prune many of the recovered
           // paths as they become unrecoverable or, score poorly relative to other paths,
@@ -189,25 +190,28 @@ fn resolve_errored_contexts<I: ParserInput>(
                   create_token(input, token_id, token_byte_length, token_byte_offset),
                   store,
                 );
-
-                rec_ctx.mode = RecoveryMode::Normal;
               }
               RecoveryMode::SymbolDiscard { start_offset, end_offset, .. } => {
                 let length: u32 = end_offset as u32 - start_offset as u32;
 
                 create_errata(input, &mut rec_ctx, length, start_offset as u32);
+
                 insert_node(
                   emitting_state,
                   &mut rec_ctx,
                   create_token(input, token_id, token_byte_length, token_byte_offset),
                   store,
                 );
-
-                rec_ctx.mode = RecoveryMode::Normal;
               }
               mode => panic_with_string!(format!("Invalid recovery mode {mode:?}")),
             }
-            to_continue.push(rec_ctx);
+
+            if token_byte_length > 0 {
+              rec_ctx.mode = RecoveryMode::Normal;
+              to_continue.push(rec_ctx);
+            } else {
+              // Reached EOF?
+            }
           }
 
           ParseAction::Reduce { nonterminal_id, rule_id, symbol_count } => {
@@ -216,7 +220,7 @@ fn resolve_errored_contexts<I: ParserInput>(
           }
 
           ParseAction::Accept { .. } => {
-            drop(rec_ctx); /* drop this context? */
+            drop(rec_ctx);
           }
 
           ParseAction::Skip { byte_length, .. } => {
@@ -264,6 +268,10 @@ fn inject_synthetics<I: ParserInput>(
   failed_contexts: &mut VecDeque<RecCTX>,
 ) {
   // Increment through states until we are able to get to a nonterminal
+
+  if matches!(rec_ctx.mode, RecoveryMode::SymbolDiscard { .. }) {
+    panic!("Could not continue")
+  }
 
   if rec_ctx.last_failed_state.address == last_state.address {
     return;
@@ -330,8 +338,9 @@ fn inject_synthetics<I: ParserInput>(
             ctx.symbols.push((emitting_state, Rc::new(CSTNode::Token(TokenNode::missing_type(token_id as u16, 1 as usize)))));
             continue_contexts.push_back((true, create_synthetic, ctx));
           } else {
-            ctx.handle_shift();
             ctx.mode = RecoveryMode::Normal;
+
+            ctx.handle_shift();
             insert_node(emitting_state, &mut ctx, create_token(input, token_id, token_byte_length, token_byte_offset), store);
             ctx.ctx.is_finished = false;
             failed_contexts.push_back(ctx);
@@ -417,11 +426,10 @@ fn drop_symbols(
   count: usize,
   end_offset: usize,
 ) {
-  
   // Do not attempt to drop symbols if there are no symbols to drop (obviously),
   // or there is no new input that can be consumed.
 
-  if rec_ctx.symbols.len() == 0 || (rec_ctx.ctx.end_ptr > 0 && rec_ctx.ctx.end_ptr <= rec_ctx.ctx.input_ptr) {
+  if rec_ctx.symbols.len() <= 1 || (rec_ctx.ctx.end_ptr > 0 && rec_ctx.ctx.end_ptr <= rec_ctx.ctx.input_ptr) {
     return;
   };
 

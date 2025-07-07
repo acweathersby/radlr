@@ -8,3 +8,7 @@ pub use radlr_lab::*;
 pub use types::*;
 
 pub use parser::{JSDebugEvent, JSDebugPacket};
+
+
+#[cfg(test)]
+mod test;

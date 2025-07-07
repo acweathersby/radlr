@@ -201,3 +201,68 @@ pub fn temp_lab_tesit2() -> RadlrResult<()> {
 
   Ok(())
 }
+
+#[test]
+pub fn construct_derror_recovering_erlang_toy() -> RadlrResult<()> {
+  let source = r#"
+  IGNORE { c:sp }
+
+  <> Program >            (Message{1} | Condition | Definition)+{2}
+  
+  <> Operand  >           "(" Message ")" 
+              |           "'" tk:identifier 
+              |           tk:StringLiteral 
+              |           tk:NumberLiteral
+  
+  <> Message >                       Operand? (tk:identifier Operand)* "."
+  
+  <> Condition >                     "if" Message "then" Program
+                                     ("elif" Message "then" Program)*
+                                     ("else" Program)?
+                                     "end"
+  
+  <> Definition >                    "def" tk:identifier "=" Program "."
+  
+  
+  <> identifier > c:id (c:id | c:num)+
+  
+  <> StringLiteral > "\"" "\""
+  
+  <> NumberLiteral > c:num+
+  
+   "#;
+
+  let input = "if 'test. then ('trsttrtt')";
+
+  let root_path = PathBuf::from("test.sg");
+  let mut grammar = RadlrGrammar::new();
+  grammar.add_source_from_string(source, &root_path, false)?;
+
+  let pool = radlr_core::worker_pool::StandardPool::new_with_max_workers().unwrap();
+
+  let mut config = ParserConfig::default().cst_editor();
+  config.EXPORT_ALL_NONTERMS = true;
+  let parser_data = grammar.build_db(&root_path, config)?.build_states(config, &pool)?.build_ir_parser(true, false, &pool)?;
+
+  _write_states_to_temp_file_(&parser_data)?;
+
+  let pkg = compile_bytecode(&parser_data, false)?;
+
+  _write_disassembly_to_temp_file_(&pkg, parser_data.get_db(), config)?;
+
+  let result =
+    pkg.parse_with_recovery(&mut StringInput::from(input), pkg.get_entry_data_from_name("default")?, &Default::default())?;
+
+  println!("\n=============================================");
+  if let Some(best) = result.first() {
+    for (_, sym) in &best.symbols {
+      let str = Printer::new(sym, true, &pkg).to_string();
+      println!("{str}");
+      println!("--\n");
+      Printer::new(sym, true, &pkg).print_all();
+    }
+    println!("\n");
+  }
+
+  Ok(())
+}

@@ -156,8 +156,8 @@ impl NodeTraits for CSTNode {
     use CSTNode::*;
     match self {
       Token(tok) => tok.entropy(),
-      NonTerm(nt) => 0,
-      PlaceholderNonTerm(nt) => 1,
+      NonTerm(_) => 0,
+      PlaceholderNonTerm(_) => 1,
       Alts(m) => m.alternatives.first().map(|f| f.entropy).unwrap_or_default(),
     }
   }
@@ -215,7 +215,7 @@ impl Debug for CSTNode {
         }
         _ => unreachable!(),
       },
-      Self::PlaceholderNonTerm(nt) => f.write_str("[NT?]"),
+      Self::PlaceholderNonTerm(..) => f.write_str("[NT?]"),
       Self::Alts(multi) => multi.fmt(f),
       Self::NonTerm(nt) => nt.fmt(f),
     }
@@ -361,7 +361,7 @@ pub trait CSTtoASTProducer<I: ParserInput, ASTNode>: ASTProducer<I, ASTNode> {
         NodeType::Missing | NodeType::Token => Some(ASTBaseNode::Token(Rc::new(tk.clone()))),
         _ => None,
       },
-      PlaceholderNonTerm(non_term) => {
+      PlaceholderNonTerm(..) => {
         todo!()
       }
       NonTerm(non_term) => {
@@ -414,7 +414,7 @@ impl NodeTraits for TokenNode {
           val.len()
         }
       }
-      SmallToken { len, tok_id, data, .. } => unsafe { *len as usize },
+      SmallToken { len, .. } => *len as usize,
     }
   }
 
@@ -431,7 +431,6 @@ impl NodeTraits for TokenNode {
     match &self.0 {
       MissingToken { .. } => NodeType::Missing,
       LargeToken { ty, .. } | SmallToken { ty, .. } => *ty,
-      _ => unreachable!(),
     }
   }
 
@@ -462,7 +461,7 @@ impl TokenNode {
     match &self.0 {
       MissingToken { .. } => "Missing",
       LargeToken { val, .. } => val.as_str(),
-      SmallToken { len, tok_id, data, .. } => unsafe { std::str::from_utf8_unchecked(&data[0..*len as usize]) },
+      SmallToken { len, data, .. } => unsafe { std::str::from_utf8_unchecked(&data[0..*len as usize]) },
     }
   }
 

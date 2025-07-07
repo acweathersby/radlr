@@ -55,7 +55,7 @@ pub fn lookahead_scanners() -> RadlrResult<()> {
   )
 }
 #[test]
-pub fn temp__AAA() -> RadlrResult<()> {
+pub fn temp_aaa() -> RadlrResult<()> {
   compile_and_run_grammars(
     &[r#"
     IGNORE { c:sp }

@@ -28,7 +28,3 @@ multithread = []
 
 # Enable the debug printing of errors
 auto_print_errors = []
-
-[profile.release]
-opt-level=3
-debug = 0

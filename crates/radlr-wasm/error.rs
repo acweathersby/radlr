@@ -2,7 +2,7 @@ use radlr_core::RadlrError;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 pub enum ErrorOrigin {
   #[default]
   Grammar,
@@ -13,7 +13,7 @@ pub enum ErrorOrigin {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct JSRadlrSourceError {
   pub line:         u32,
   pub col:          u32,
@@ -33,7 +33,7 @@ impl JSRadlrSourceError {
 }
 
 #[wasm_bindgen]
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct PositionedErrors {
   vec: Vec<JSRadlrSourceError>,
 }

@@ -9,15 +9,6 @@ enum NodeRef {
   None,
 }
 
-impl NodeRef {
-  pub fn as_ref(&self) -> Option<&CSTNode> {
-    match self {
-      NodeRef::Clean(node) => Some(node.as_ref()),
-      NodeRef::Dirty(node) => Some(node.as_ref()),
-      NodeRef::None => None,
-    }
-  }
-}
 #[derive(Default, Debug)]
 pub struct EditNode {
   parent:   Option<ManuallyDrop<EditNodeRef>>,
@@ -124,7 +115,7 @@ impl EditNodeRef {
     }
   }
 
-  pub fn replace(&mut self, nodes: impl IntoIterator<Item = Rc<CSTNode>>, store: &CSTStore) {
+  pub fn replace(&mut self, nodes: impl IntoIterator<Item = Rc<CSTNode>>, _: &CSTStore) {
     unsafe {
       let internal = &mut *self.internal;
       let index = internal.index;
@@ -259,7 +250,7 @@ impl EditNode {
 
 pub fn split_alternates(node: &Rc<CSTNode>) -> Vec<Vec<Rc<CSTNode>>> {
   match node.as_ref() {
-    CSTNode::NonTerm(NonTermNode { id, rule, length, symbols }) => {
+    CSTNode::NonTerm(NonTermNode { id, rule, symbols, .. }) => {
       let alts = get_alts(symbols);
 
       let mut result = vec![];

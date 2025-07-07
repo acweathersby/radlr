@@ -32,25 +32,25 @@ impl Hash for RootData {
   }
 }
 
-pub(crate) struct GraphNode {
-  pub id:           StateId,
-  pub class:        ParserClassification,
-  pub ty:           StateType,
-  pub sym:          PrecedentSymbol,
-  pub hash_id:      u64,
-  pub kernel:       OrderedSet<Item>,
-  pub follow_hash:  Option<u64>,
-  pub graph_type:   GraphType,
-  pub reduce_item:  Option<ItemIndex>,
-  pub predecessor:  Option<SharedGraphNode>,
-  pub symbol_set:   Option<Arc<ScannerData>>,
+pub struct GraphNode {
+  pub(crate) id:           StateId,
+  pub(crate) class:        ParserClassification,
+  pub(crate) ty:           StateType,
+  pub(crate) sym:          PrecedentSymbol,
+  pub(crate) hash_id:      u64,
+  pub(crate) kernel:       OrderedSet<Item>,
+  pub(crate) follow_hash:  Option<u64>,
+  pub(crate) graph_type:   GraphType,
+  pub(crate) reduce_item:  Option<ItemIndex>,
+  pub(crate) predecessor:  Option<SharedGraphNode>,
+  pub(crate) symbol_set:   Option<Arc<ScannerData>>,
   /// Only present on scanner states.
-  pub scanner_root: Option<Arc<ScannerData>>,
-  pub db:           SharedGrammarDatabase,
-  pub is_leaf:      bool,
-  pub is_goto:      bool,
-  pub root_data:    RootData,
-  pub invalid:      std::sync::atomic::AtomicBool,
+  pub(crate) scanner_root: Option<Arc<ScannerData>>,
+  pub(crate) db:           SharedGrammarDatabase,
+  pub(crate) is_leaf:      bool,
+  pub(crate) is_goto:      bool,
+  pub(crate) root_data:    RootData,
+  pub(crate) invalid:      std::sync::atomic::AtomicBool,
 }
 
 impl Hash for GraphNode {

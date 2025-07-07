@@ -95,6 +95,8 @@ fn build_ast<I: ParserInput, DB: ParserProducer<I>, Token: Tk + Debug, N: Node<T
 
   let mut ctx = parser.init(entry)?;
 
+  ctx.end_ptr = input.len();
+
   let input_data = input.get_owned_ref();
 
   while let Some(action) = parser.next(input, &mut ctx) {

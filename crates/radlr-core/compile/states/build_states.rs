@@ -6,7 +6,7 @@ use crate::types::{worker_pool::WorkerPool, *};
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Hash)]
-pub(crate) enum StateConstructionError {
+pub enum StateConstructionError {
   NonDeterministicPeek(SharedGraphNode, Box<RadlrError>),
   _OtherErrors(Vec<RadlrError>),
 }

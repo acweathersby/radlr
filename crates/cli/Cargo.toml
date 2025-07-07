@@ -15,9 +15,3 @@ radlr_bytecode      = { path="../radlr-bytecode" }
 radlr_formatter     = { path="../radlr-formatter" }
 radlr_build         = { path="../radlr-build" }
 radlr_lab           = { path="../radlr-lab", features=["host"] }
-
-[profile.release]
-opt-level=3
-panic = 'abort'
-lto = true
-debug = 0

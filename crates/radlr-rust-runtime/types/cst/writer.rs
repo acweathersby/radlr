@@ -92,7 +92,7 @@ impl<'node, 'db> Printer<'node, 'db> {
         }
       }
       PlaceholderNonTerm(non_term) => {
-        todo!("AAAAA");
+        w.write(format!("placeholder [{non_term}]").as_str().as_bytes())?;
       }
       Alts(multi) => {
         for alt in &multi.alternatives {

@@ -52,7 +52,7 @@ impl CSTStore {
           Rc::new(candidate.clone())
         }
       }
-      CSTNode::PlaceholderNonTerm(node) => Rc::new(candidate.clone()),
+      CSTNode::PlaceholderNonTerm(..) => Rc::new(candidate.clone()),
       CSTNode::Alts(_) => Rc::new(candidate.clone()),
     }
   }

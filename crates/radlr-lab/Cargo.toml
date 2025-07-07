@@ -21,13 +21,6 @@ tungstenite         = { version="0.24.0", optional = true }
 host = ["tungstenite"]
 client =  ["wasm-bindgen"]
 
-[profile.release]
-opt-level=3
-panic = 'abort'
-lto = true
-debug = 0
-
-
 [dependencies.wasm-bindgen]
 optional = true
 version = "0.2.87"

@@ -21,6 +21,7 @@ use crate::{
 };
 
 /// A Grammar Identity
+#[allow(unused)]
 #[wasm_bindgen]
 pub struct JSGrammarIdentities(pub(crate) Box<GrammarIdentities>);
 
@@ -130,6 +131,7 @@ impl AsMut<RadlrGrammar> for JSRadlrGrammar {
 }
 
 /// Bytecode produced from parse states
+#[allow(unused)]
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct JSBytecodeParserDB(pub(crate) Rc<BytecodeParserDB>, pub(crate) HashMap<u32, String>);
@@ -255,18 +257,6 @@ pub fn export_bytecode_db(states: &JSIRParser) -> Result<ArrayBuffer, Positioned
   Ok(array_buffer)
 }
 
-fn read_primitive_at_offset<T: Copy + Default>(buffer: &[u8], offset: &mut usize) -> T {
-  unsafe {
-    let size: usize = size_of::<T>();
-    let data: T = Default::default();
-    let bytes: *mut u8 = std::mem::transmute(&data);
-    buffer.as_ptr().offset(*offset as isize).copy_to(bytes, size);
-    *offset += size;
-    data
-  }
-}
-
-///
 #[wasm_bindgen]
 pub fn create_parser_states(
   js_db: &JSGrammarDB,

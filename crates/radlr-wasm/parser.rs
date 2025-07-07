@@ -5,11 +5,9 @@ use radlr_rust_runtime::{
   types::{bytecode::Opcode, *},
 };
 use serde::{Deserialize, Serialize};
-use web_sys::console;
 
 use std::{
   collections::VecDeque,
-  hash::DefaultHasher,
   rc::Rc,
   sync::{LockResult, RwLock},
 };
@@ -41,14 +39,12 @@ impl JSByteCodeParser {
   }
 
   pub fn best_error_recovery(&mut self, entry_name: String, input: String) -> String {
-    
     let entry = self.db.get_entry_data_from_name(&entry_name).expect("Could not find entry point");
     let parser = &self.db;
-    
+
     let result = parser.parse_with_recovery(&mut StringInput::from(input), entry, &Default::default());
-    
+
     let Ok(result) = result else { return "ETF".to_string() };
-    
 
     if let Some(best) = result.first() {
       let mut string = String::default();
@@ -74,7 +70,7 @@ impl JSByteCodeParser {
     let v = self.values.clone();
 
     if enable_debugger {
-      let debugger: Option<Box<DebugFnNew>> = Some(Box::new(move |e, ctx, i| {
+      let debugger: Option<Box<DebugFnNew>> = Some(Box::new(move |e, ctx, _| {
         if let LockResult::Ok(mut values) = v.write() {
           match e {
             DebugEventNew::ExecuteInstruction { instruction, is_scanner } => {
@@ -198,10 +194,6 @@ impl JSByteCodeParser {
       }
     };
   }
-}
-
-fn console_log_string(str: String) {
-  unsafe { console::debug_1(&JsValue::from(&str)) };
 }
 
 #[wasm_bindgen]

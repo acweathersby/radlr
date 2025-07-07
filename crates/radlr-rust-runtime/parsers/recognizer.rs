@@ -34,17 +34,18 @@ pub trait Recognizer<T: ParserInput>: ParserIterator<T> + ParserInitializer {
             Ok(())
           };
         }
-
+        #[allow(unused)]
         ParseAction::Shift {
           byte_length: token_byte_length,
           byte_offset: token_byte_offset,
           token_id,
           ..
-        } => {
-          let offset_start = token_byte_offset as usize;
-          let offset_end = (token_byte_offset + token_byte_length) as usize;
+        } =>
+        {
           #[cfg(debug_assertions)]
           if let Some(debug) = self.get_debugger() {
+            let offset_start = token_byte_offset as usize;
+            let offset_end = (token_byte_offset + token_byte_length) as usize;
             debug(&DebugEventNew::ActionShift { offset_start, offset_end, token_id }, ParserStackTrackers::from(&ctx), input);
           }
         }

@@ -9,11 +9,6 @@ path = "./lib.rs"
 [features]
 wasm-lab = ["wasm-bindgen", "web-sys"]
 
-[dependencies.wasm-bindgen]
-optional = true
-version = "0.2.87"
-
-[dependencies.web-sys]
-optional = true
-version = "0.3.64"
-features = [ 'console' ]
+[dependencies]
+wasm-bindgen = { workspace  = true, optional = true }
+web-sys =  { workspace  = true, optional = true }
