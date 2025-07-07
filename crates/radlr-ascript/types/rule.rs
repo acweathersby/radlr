@@ -29,7 +29,7 @@ impl AscriptRule {
 }
 
 impl ValueObj for AscriptRule {
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     use AscriptRule::*;
     match self {
       Struct(..) => "StructRule",

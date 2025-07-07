@@ -1,3 +1,4 @@
+#![allow(unused)]
 use radlr_core::RadlrGrammar;
 pub use radlr_core::RadlrResult;
 use std::path::{Path, PathBuf};

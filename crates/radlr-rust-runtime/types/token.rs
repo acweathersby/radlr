@@ -38,7 +38,7 @@ impl Hash for Token {
     self.inner.line_off.hash(state);
     self.inner.off.hash(state);
     self.inner.len.hash(state);
-    state.finish();
+    let _ = state.finish();
   }
 }
 

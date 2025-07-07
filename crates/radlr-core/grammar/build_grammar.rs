@@ -1,3 +1,4 @@
+#![allow(for_loops_over_fallibles)]
 use super::{
   super::{
     parser::{self, ASTNode, Grammar},

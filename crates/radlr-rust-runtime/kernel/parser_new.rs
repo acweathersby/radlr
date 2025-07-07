@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::{
   types::{
     bytecode::{ByteCodeIterator, Instruction, MatchInputType, Opcode, NORMAL_STATE_FLAG, STATE_HEADER},
@@ -5,10 +6,7 @@ use crate::{
   },
   utf8::{get_token_class_from_codepoint, get_utf8_byte_length_from_code_point},
 };
-use std::{
-  collections::{hash_set, HashMap, HashSet},
-  rc::Rc,
-};
+use std::{collections::HashMap, rc::Rc};
 
 struct OpResult<'a> {
   action:    ParseAction,
@@ -102,14 +100,14 @@ fn dispatch<'a, 'debug>(
         todo!("Expected next instruction!")
       }
 
-      OpResult { action: None, next: Some(next_instruction), is_goto, can_debug } => {
+      OpResult { action: None, next: Some(next_instruction), is_goto, .. } => {
         if is_goto {
           block_base = next_instruction;
         }
 
         next_instruction
       }
-      OpResult { action, next, can_debug, .. } => {
+      OpResult { action, next, .. } => {
         break (action, next, block_base.address());
       }
     }
@@ -258,7 +256,6 @@ fn __skip_token_core__<'a>(base_instruction: Instruction<'a>, ctx: &mut ParserCo
   let offset = ctx.sym_ptr + ctx.tok_byte_len as usize;
   let tok_len = ctx.tok_byte_len;
   let token_id = ctx.tok_id;
-  let is_recovery = ctx.recovery_tok_id > 0;
   ctx.input_ptr = offset;
   ctx.sym_ptr = offset;
   ctx.tok_id = 0;
@@ -679,7 +676,7 @@ pub fn is_token_state<'a>(i: Instruction<'a>) -> bool {
   // if yield success branch actions.
   match opcode {
     Opcode::HashBranch | Opcode::VectorBranch => {
-      let TableHeaderData { input_type, scan_block_instruction, .. } = i.into();
+      let TableHeaderData { input_type, .. } = i.into();
       if input_type == MatchInputType::Token {
         true
       } else {
@@ -946,6 +943,7 @@ impl ParserInitializer for ByteCodeParserNew {
         Err(ParserError::InvalidNonTerminal)
       } else {
         let mut root = ParserContext::default();
+
         root.stack = vec![ParserState::default(), ParserState::state_entry(*address as usize)];
         Ok(root)
       }

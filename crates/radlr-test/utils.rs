@@ -1,3 +1,4 @@
+#![allow(unused)]
 use std::path::PathBuf;
 
 use crate::debug::{file_debugger, PrintConfig};
@@ -85,11 +86,10 @@ pub fn compile_and_run_grammars2(
   config: ParserConfig,
 ) -> RadlrResult<()> {
   build_parse_states_from_multi_sources2(
-    source,
     source_path,
     true,
     &|tp| {
-      #[cfg(all(debug_assertions, not(feature = "wasm-target")))]
+      #[cfg(all(debug_assertions))]
       _write_states_to_temp_file_(&tp)?;
 
       let pkg = compile_bytecode(&tp, true)?;
@@ -142,7 +142,7 @@ pub fn compile_and_run_grammars(source: &[&str], inputs: &[(&str, &str, bool)], 
     "".into(),
     true,
     &|tp| {
-      #[cfg(all(debug_assertions, not(feature = "wasm-target")))]
+      #[cfg(all(debug_assertions))]
       _write_states_to_temp_file_(&tp)?;
 
       let pkg = compile_bytecode(&tp, true)?;

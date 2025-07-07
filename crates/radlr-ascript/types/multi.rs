@@ -1,5 +1,5 @@
-use crate::{AscriptAggregateType, AscriptDatabase, AscriptScalarType, AscriptType, AscriptTypes};
-use radlr_core::{proxy::OrderedSet, CachedString};
+use crate::{AscriptDatabase, AscriptType, AscriptTypes};
+use radlr_core::CachedString;
 use radlr_formatter::*;
 use std::fmt::Debug;
 
@@ -30,7 +30,7 @@ impl ValueObj for AscriptMulti {
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "AscriptMultiEnum"
   }
 }
@@ -38,6 +38,7 @@ impl ValueObj for AscriptMulti {
 #[derive(Debug)]
 /// Provides services to remap AnyTypes to enums of Value
 pub struct AscriptMultis<'db> {
+  #[allow(unused)]
   pub(crate) db:    &'db AscriptDatabase,
   pub(crate) types: Vec<AscriptMulti>,
   pub(crate) len:   usize,
@@ -45,7 +46,7 @@ pub struct AscriptMultis<'db> {
 
 impl<'db> AscriptMultis<'db> {
   pub fn new(db: &'db AscriptDatabase) -> Self {
-    let mut used_indices = Vec::from_iter(db.multi_type_lu.iter().cloned().map(|index| 0));
+    let mut used_indices = Vec::from_iter(db.multi_type_lu.iter().cloned().map(|_| 0));
     Self {
       db,
       len: used_indices.len(),
@@ -81,7 +82,7 @@ impl<'db> AscriptMultis<'db> {
 }
 
 impl<'a> ValueObj for AscriptMultis<'a> {
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "multi_enums"
   }
 

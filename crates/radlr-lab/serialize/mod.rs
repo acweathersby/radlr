@@ -3,7 +3,7 @@ pub mod bytecode_db {
 
   use std::{collections::HashMap, hash::Hash};
 
-  use radlr_rust_runtime::types::{BytecodeParserDB, EntryPoint, ParserError, Token};
+  use radlr_rust_runtime::types::{BytecodeParserDB, EntryPoint, ParserError};
 
   /// Import a database from its portable binary format
   pub fn import_bytecode_db(buffer: &[u8]) -> Result<BytecodeParserDB, ParserError> {
@@ -56,7 +56,7 @@ pub mod bytecode_db {
     size += 4 + db.nonterm_id_to_name.iter().fold(0, |size, d| size + 8 + d.1.as_bytes().len());
 
     // nonterm_offsets:    HashMap<u32, (u32, u32)>
-    size += 4 + db.rule_offsets.iter().fold(0, |size, d| size + 4 + size_of::<(u32, u32)>());
+    size += 4 + db.rule_offsets.iter().fold(0, |size, _| size + 4 + size_of::<(u32, u32)>());
 
     //// ir_token_lookup:           BTreeMap<u32, Token>
     //size += 4 + db.ir_token_lookup.iter().fold(0, |size, _| size + 4 +
@@ -69,8 +69,6 @@ pub mod bytecode_db {
     size += size_of::<EntryPoint>();
 
     let mut buffer = Vec::<u8>::with_capacity(size);
-
-    dbg!(&db.nonterm_id_to_name);
 
     write_primitive_to_bytes(&mut buffer, db.bytecode.len() as u32);
     write_bytes(&mut buffer, &db.bytecode);

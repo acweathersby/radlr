@@ -23,7 +23,7 @@ pub struct ParserConfig {
   /// DAG) being returned by the parser instead of a CST
   pub ALLOW_CONTEXT_SPLITTING: bool,
   /// Creates a single scanner instead of multiple contextual scanners. More
-  /// likely to report terminal conflicts.
+  /// likely to report lexer conflicts.
   pub CONTEXT_FREE: bool,
   /// Creates states that directly handle transitions on terminals, allowing the
   /// creation of parsers that can patch existing CST data structures.

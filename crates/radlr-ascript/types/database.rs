@@ -3,10 +3,10 @@ use radlr_core::{
   proxy::OrderedSet,
   CachedString,
   DBNonTermKey,
-  IString,
   GrammarDatabase,
-  RadlrGrammarDatabase,
+  IString,
   RadlrError,
+  RadlrGrammarDatabase,
   RadlrResult,
 };
 use radlr_formatter::*;
@@ -113,7 +113,7 @@ impl AscriptDatabase {
 }
 
 impl ValueObj for AscriptDatabase {
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "AscriptDatabase"
   }
 

@@ -135,7 +135,6 @@ function run_cst_render(ast: Rules, input: string, db: JSBytecodeParserDB | null
 
   console.log(parser.generate_error_corrected_output(input))
 
-
   let tokens: Token[] = [];
   let nodes: Node[] = [];
 

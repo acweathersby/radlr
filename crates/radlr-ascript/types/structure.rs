@@ -34,7 +34,7 @@ impl ValueObj for AscriptStruct {
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "AscriptStruct"
   }
 }
@@ -76,7 +76,7 @@ impl ValueObj for AscriptProp {
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "AScriptProp"
   }
 }

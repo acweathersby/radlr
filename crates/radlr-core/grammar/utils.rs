@@ -49,7 +49,6 @@ pub struct SymbolData<'a> {
   pub is_list:           bool,
   pub is_group:          bool,
   pub is_optional:       bool,
-  pub is_shift_nothing:  bool,
   pub is_eof:            bool,
   pub symbol_precedence: u16,
   pub token_precedence:  u16,

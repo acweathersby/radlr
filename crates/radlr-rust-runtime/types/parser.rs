@@ -36,15 +36,15 @@ pub trait ParserIterator<T: ParserInput> {
   /// Returns None if the context has already entered a finished state
   fn next<'ctx>(&mut self, input: &mut T, context: &'ctx mut ParserContext) -> Option<ParseAction>;
 
-  fn get_success_states<'ctx>(&mut self, address: StateInfo) -> Vec<SuccessorState> {
+  fn get_success_states<'ctx>(&mut self, _address: StateInfo) -> Vec<SuccessorState> {
     vec![]
   }
 
-  fn get_token_id<'ctx>(&mut self, address: StateInfo, input: &mut T, ctx: &mut ParserContext) -> (u32, bool) {
+  fn get_token_id<'ctx>(&mut self, _address: StateInfo, _input: &mut T, _ctx: &mut ParserContext) -> (u32, bool) {
     (0, false)
   }
 
-  fn is_token_branch_state<'ctx>(&mut self, address: StateInfo) -> bool {
+  fn is_token_branch_state<'ctx>(&mut self, _address: StateInfo) -> bool {
     false
   }
 }
@@ -68,7 +68,7 @@ pub trait RuntimeDatabase {
   }
 
   /// Returns a human friendly string representation of the given token id.
-  fn token_id_to_str<'str>(&'str self, id: u32) -> Option<&'str str> {
+  fn token_id_to_str<'str>(&'str self, _id: u32) -> Option<&'str str> {
     None
   }
 
@@ -129,9 +129,6 @@ pub struct ParserState {
   pub address: usize,
   pub info:    StateInfo,
 }
-
-/// Combination of StateId and stack address.
-pub struct ParseStateRef(u32);
 
 impl ParserState {
   /// This entry is created when a parser is first initialized with a start

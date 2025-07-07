@@ -1,7 +1,7 @@
 use super::common::{build_ast_source, build_parser_source, build_parser_states};
 use crate::BuildConfig;
 use radlr_core::*;
-use std::{fmt::format, fs::*, io::Write};
+use std::{fs::*, io::Write};
 
 const SCRIPT: &'static str = include_str!("rust_ast_script.atat");
 const BC_SCRIPT: &'static str = include_str!("rust_bytecode_script.atat");
@@ -67,5 +67,3 @@ pub fn build(db: &RadlrGrammarDatabase, build_config: BuildConfig, parser_config
 
   Ok(())
 }
-
-

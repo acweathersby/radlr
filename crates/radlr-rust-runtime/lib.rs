@@ -32,6 +32,8 @@ pub mod utf8;
 macro_rules! panic_with_string {
   ($data:expr ) => {{
     let string = format!("{} at {}:{}", $data, file!(), line!());
+
+    #[allow(unused_unsafe)]
     #[cfg(feature = "wasm-lab")]
     unsafe {
       web_sys::console::debug_1(&wasm_bindgen::JsValue::from(&string))

@@ -1,11 +1,11 @@
 use crate::{
   types::ParserConfig,
   DBPackage,
+  GrammarDatabase,
   GrammarSoup,
   ParseStatesMap,
-  GrammarDatabase,
-  RadlrGrammarDatabase,
   RadlrGrammar,
+  RadlrGrammarDatabase,
   RadlrIRParser,
   RadlrResult,
   TestPackage,
@@ -48,7 +48,6 @@ pub fn build_parse_states_from_source_str<'a, T>(
 }
 
 pub fn build_parse_states_from_multi_sources2<'a, T>(
-  sources: &[&str],
   source_path: PathBuf,
   optimize: bool,
   test_fn: &dyn Fn(TestPackage) -> RadlrResult<T>,

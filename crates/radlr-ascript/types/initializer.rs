@@ -48,7 +48,7 @@ impl ValueObj for Initializer {
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "Initializer"
   }
 }
@@ -77,7 +77,7 @@ impl ValueObj for StructInitializer {
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "StructInitializer"
   }
 }

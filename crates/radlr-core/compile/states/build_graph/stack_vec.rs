@@ -1,11 +1,6 @@
 use core::ops::{Index, IndexMut};
 use std::fmt::Debug;
 
-enum StackData<const STACK_SIZE: usize, T: Sized> {
-  StackData(),
-  VecData(Vec<T>),
-}
-
 /// A vector which derives its initial capacity from the stack. The data is
 /// moved to the heap if the number of elements pushed to the vector exceed
 /// the stack capacity.
@@ -18,7 +13,6 @@ pub struct StackVec<const STACK_SIZE: usize, T: Sized> {
   inner:       [T; STACK_SIZE],
   vec:         Option<Vec<T>>,
   allocations: usize,
-  iter_index:  usize,
 }
 
 impl<const STACK_SIZE: usize, T: Debug> Debug for StackVec<STACK_SIZE, T> {
@@ -97,7 +91,7 @@ impl<const STACK_SIZE: usize, T: Sized + Eq + Debug> StackVec<STACK_SIZE, T> {
   #[inline(never)]
   pub fn new() -> Self {
     let inner: [T; STACK_SIZE] = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-    let out = Self { inner, vec: None, allocations: 0, iter_index: 0 };
+    let out = Self { inner, vec: None, allocations: 0 };
 
     out
   }
@@ -121,24 +115,6 @@ impl<const STACK_SIZE: usize, T: Sized> StackVec<STACK_SIZE, T> {
     }
   }
 
-  pub fn clear(&mut self) {
-    /*     let mut new_data = StackData::StackData(unsafe { std::mem::MaybeUninit::uninit().assume_init() });
-
-       std::mem::swap(&mut self.inner, &mut new_data);
-
-       match new_data {
-         StackData::StackData(data) => {
-           for i in 0..self.allocations {
-             drop(unsafe { core::mem::transmute_copy::<T, T>(&data[i]) });
-           }
-           core::mem::forget(data);
-         }
-         StackData::VecData(vec) => drop(vec),
-       }
-    */
-    self.allocations = 0;
-  }
-
   pub fn len(&self) -> usize {
     if let Some(vec) = &self.vec {
       vec.len()
@@ -149,10 +125,6 @@ impl<const STACK_SIZE: usize, T: Sized> StackVec<STACK_SIZE, T> {
 
   pub fn iter<'stack>(&'stack self) -> StackVecIterator<'stack, STACK_SIZE, T> {
     StackVecIterator { inner: self, tracker: 0, len: self.len() }
-  }
-
-  pub fn iter_mut<'stack>(&'stack mut self) -> StackVecIteratorMut<'stack, STACK_SIZE, T> {
-    StackVecIteratorMut { len: self.len(), inner: self, tracker: 0 }
   }
 
   pub fn is_empty(&self) -> bool {

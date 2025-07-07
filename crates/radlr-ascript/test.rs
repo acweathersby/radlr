@@ -336,7 +336,7 @@ fn token_vector() -> RadlrResult<()> {
 
   dbg!(&adb);
 
-  let (_, strct) = adb.structs.pop_first().expect("should have that one struct here");
+  let (..) = adb.structs.pop_first().expect("should have that one struct here");
   assert_eq!(adb.structs.len(), 1);
 
   //assert_eq!(strct.properties.len(), 2);

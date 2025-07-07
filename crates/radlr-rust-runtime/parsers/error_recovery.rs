@@ -1,7 +1,4 @@
-use bytecode::Instruction;
-
 use crate::{
-  kernel::is_token_state,
   panic_with_string,
   parsers::fork::{fork_meta_kernel, CHAR_USAGE_SCORE},
   types::*,
@@ -15,9 +12,6 @@ use super::{
 
 const _TOKEN_SYNTHESIS_PENALTY: isize = 1;
 
-/// Maximum number of subsequent synthetic tokens
-const SYNTH_LIMIT: usize = 3;
-
 pub trait ErrorRecoveringDatabase<I: ParserInput>: ParserProducer<I> + Sized {
   /// Parse while attempting to recover from any errors encountered in the
   /// input.
@@ -27,7 +21,7 @@ pub trait ErrorRecoveringDatabase<I: ParserInput>: ParserProducer<I> + Sized {
   /// several error recovery strategies are employed, the resulting parse
   /// forest may include several trees containing error corrections of varying
   /// quality. In this case, the tree containing the least number of error
-  /// correction assumptions will be ordered in front of trees that employ more
+  /// correction assumptions will be ordered before trees that employ more
   /// guesswork to recover parsing.
   fn parse_with_recovery(&self, input: &mut I, entry: EntryPoint, store: &CSTStore) -> Result<Vec<RecCTX>, ParserError> {
     parse_with_recovery(input, entry, self, store)
@@ -49,7 +43,6 @@ pub fn parse_with_recovery<I: ParserInput, DB: ParserProducer<I>>(
   pending.push_back(0, create_recovery_ctx::<I, DB>(input, &mut parser, entry)?);
 
   pending.swap_buffers();
-
   let mut failed_contexts: Vec<(ParserState, RecCTX)> = Vec::new();
   let mut completed: Vec<RecCTX> = Vec::new();
   let mut best_failure = None;
@@ -232,7 +225,7 @@ fn resolve_errored_contexts<I: ParserInput>(
           }
 
           ParseAction::Error { last_state, .. } => match rec_ctx.mode {
-            RecoveryMode::CodepointDiscard { count, start_offset } => {
+            RecoveryMode::CodepointDiscard { start_offset, .. } => {
               let length = rec_ctx.ctx.sym_ptr as u32 - start_offset as u32;
               create_errata(input, &mut rec_ctx, length, start_offset as u32);
               inject_synthetics(input, parser, store, &rec_ctx, last_state, contexts);
@@ -272,7 +265,6 @@ fn inject_synthetics<I: ParserInput>(
 ) {
   // Increment through states until we are able to get to a nonterminal
 
-  dbg!((rec_ctx.last_failed_state.address, rec_ctx.failed_state.address, last_state.address));
   if rec_ctx.last_failed_state.address == last_state.address {
     return;
   }
@@ -501,7 +493,7 @@ fn drop_symbols(
                 }
                 node_ty => panic_with_string!(format!("Todo: handle node type {node_ty:?} in drop_symbols")),
               },
-              CSTNode::PlaceholderNonTerm(node) => entropy_delta += 1,
+              CSTNode::PlaceholderNonTerm(..) => entropy_delta += 1,
               CSTNode::NonTerm(node) => queue.extend(node.symbols.iter().cloned()),
               CSTNode::Alts(node) => queue.extend(node.alternatives.first().unwrap().symbols.iter().cloned()),
             }

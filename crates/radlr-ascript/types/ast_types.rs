@@ -12,7 +12,7 @@ formatted_typed_ordered_set!(AscriptScalarTypes, AscriptScalarType, "types");
 pub enum AscriptPropType {}
 
 impl ValueObj for AscriptPropType {
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "AscriptPropType"
   }
 
@@ -229,7 +229,7 @@ impl AscriptType {
 }
 
 impl ValueObj for AscriptType {
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "AscriptType"
   }
 
@@ -314,9 +314,6 @@ impl Hash for AscriptMultiType {
   }
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
-struct FlagId(u32);
-
 #[derive(Debug, Clone, Copy, Default)]
 pub enum AscriptScalarType {
   U8(Option<usize>),
@@ -341,7 +338,7 @@ pub enum AscriptScalarType {
 }
 
 impl ValueObj for AscriptScalarType {
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     self.friendly_name()
   }
 
@@ -550,7 +547,7 @@ impl Hash for AscriptScalarType {
       state.write(slice);
     }
 
-    state.finish();
+    let _ = state.finish();
   }
 }
 
@@ -762,7 +759,7 @@ impl GraphNode {
 }
 
 impl ValueObj for GraphNode {
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     use GraphNode::*;
     match self {
       Add(..) => "AddNode",

@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::utils::{
   compile_and_run_grammars,
   map_reduce_function,

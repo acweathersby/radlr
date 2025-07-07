@@ -147,7 +147,7 @@ fn to_err(e: RadlrError, origin: ErrorOrigin) -> PositionedErrors {
 #[wasm_bindgen]
 impl JSBytecodeParserDB {
   /// Returns the bytecode of the parser as bytes.
-  #[wasm_bindgen(method, getter)]
+  #[wasm_bindgen(getter)]
   pub fn bytecode(&self) -> Uint8Array {
     let data = &self.0.bytecode;
 
@@ -160,7 +160,7 @@ impl JSBytecodeParserDB {
 
   /// A list of enterble non-terminal names and their respective bytecode entry
   /// point address address
-  #[wasm_bindgen(method, getter)]
+  #[wasm_bindgen(getter)]
   pub fn entry_points(&self) -> JsValue {
     let entry_points = Array::new();
 
@@ -220,20 +220,6 @@ pub fn create_grammar_db(
   let parser_db = grammar.build_db(&PathBuf::from(grammar_id), (*config).into()).map_err(|e| to_err(e, ErrorOrigin::Grammar))?;
 
   Ok(JSGrammarDB(Box::new(parser_db)))
-}
-
-/// Temporary simple AST output implementation.
-#[wasm_bindgen]
-pub fn create_rust_ast_output(js_db: &JSGrammarDB) -> Result<String, PositionedErrors> {
-  let db = &js_db.0;
-
-  Ok(String::default())
-
-  /*   let RadlrResult::Ok(output) = build_rust(j.transfer(), db) else {
-    return Result::Err(convert_journal_errors(&mut j));
-  };
-
-  Ok(output) */
 }
 
 /// Import a bytecode database from a JS ArrayBuffer
@@ -342,7 +328,7 @@ pub fn get_debug_symbol_ids(address: u32, pkg: &JSBytecodeParserDB) -> JsValue {
 }
 
 #[wasm_bindgen]
-pub fn get_debug_state_name(address: u32, pkg: &JSBytecodeParserDB, db: &JSGrammarDB) -> JsValue {
+pub fn get_debug_state_name(address: u32, pkg: &JSBytecodeParserDB, _db: &JSGrammarDB) -> JsValue {
   let bc_db = pkg.0.clone();
 
   if let Some(name) = bc_db.address_to_state_name.get(&(address)) {

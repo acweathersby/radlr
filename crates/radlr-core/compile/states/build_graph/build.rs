@@ -9,7 +9,7 @@ use super::{
     handle_regular_incomplete_items,
   },
   graph::*,
-  items::{get_completed_item_artifacts, get_follow, get_follow_internal, merge_occluding_token_items, FollowType},
+  items::{get_completed_item_artifacts, get_follow_internal, merge_occluding_token_items, FollowType},
   stack_vec::StackVec,
 };
 use crate::{compile::states::build_graph::graph::StateType, types::*, utils::hash_group_btree_iter};

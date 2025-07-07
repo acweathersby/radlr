@@ -96,7 +96,7 @@ pub trait ValueObj: Debug {
 
   /// Returns a unique type name that can be access through this objects
   /// `.#type` property.
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "undefinedObj"
   }
 
@@ -166,7 +166,7 @@ impl<'a, K: ToValue + From<String> + Eq + PartialEq + Hash + Ord + Debug, T: ToV
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "obj"
   }
 
@@ -195,7 +195,7 @@ impl<'a, K: ToValue + From<String> + Debug + Ord, T: ToValue + Debug> ValueObj f
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "obj"
   }
 
@@ -217,7 +217,7 @@ impl<'a, T: ToValue + Debug> ValueObj for Vec<T> {
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "list"
   }
 
@@ -235,7 +235,7 @@ impl<'a, T: ToValue + Debug + Default> ValueObj for OrderedSet<T> {
     Value::None
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "ordered_set"
   }
 
@@ -253,7 +253,7 @@ impl<'a, T: ToValue + Debug + Default> ValueObj for HashSet<T> {
     Value::None
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "hash_set"
   }
 
@@ -275,7 +275,7 @@ impl<'a, T: ToValue + Debug> ValueObj for &[T] {
     }
   }
 
-  fn get_type<'scope>(&'scope self) -> &str {
+  fn get_type<'scope>(&'scope self) -> &'scope str {
     "list"
   }
 

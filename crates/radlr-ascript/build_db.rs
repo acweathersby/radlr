@@ -815,7 +815,7 @@ fn resolve_nonterm_values(
   adb: &mut AscriptDatabase,
   nonterm_types: &OrderedMap<DBNonTermKey, AscriptType>,
 ) -> Result<(), DBNonTermKey> {
-  let AscriptDatabase { structs, rules, errors, multi_type_lu, multi_types, .. } = adb;
+  let AscriptDatabase { rules, multi_type_lu, multi_types, .. } = adb;
   let db = adb.db.clone();
   let db = db.as_ref();
 
@@ -1038,7 +1038,7 @@ struct GraphResolveData<'a> {
 }
 
 impl<'a> GraphResolveData<'a> {
-  pub fn to_node(self, node: &'a ASTNode) -> GraphResolveData {
+  pub fn to_node(self, node: &'a ASTNode) -> GraphResolveData<'a> {
     Self { node, ..self }
   }
 }

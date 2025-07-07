@@ -12,7 +12,6 @@ use std::{
   fmt::Debug,
   hash::{Hash, Hasher},
   sync::Arc,
-  vec,
 };
 
 #[derive(Hash, Clone, Debug)]

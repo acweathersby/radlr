@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 mod build_ir;
 mod optimize;
 

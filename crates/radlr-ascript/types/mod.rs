@@ -4,7 +4,7 @@ mod initializer;
 mod multi;
 mod rule;
 mod structure;
-
+mod test;
 pub use ast_types::*;
 pub use database::*;
 pub use initializer::*;

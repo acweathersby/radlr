@@ -41,15 +41,14 @@ impl JSByteCodeParser {
   }
 
   pub fn best_error_recovery(&mut self, entry_name: String, input: String) -> String {
+    
     let entry = self.db.get_entry_data_from_name(&entry_name).expect("Could not find entry point");
     let parser = &self.db;
-
-
-    console_log_string("A".to_string());
+    
     let result = parser.parse_with_recovery(&mut StringInput::from(input), entry, &Default::default());
-    console_log_string("B".to_string());
-
+    
     let Ok(result) = result else { return "ETF".to_string() };
+    
 
     if let Some(best) = result.first() {
       let mut string = String::default();

@@ -1,3 +1,4 @@
+#![allow(unused)]
 use super::super::types::*;
 use crate::{compile::states::build_graph::graph::*, RadlrGrammarDatabase};
 use std::hash::Hash;
@@ -823,18 +824,6 @@ impl From<(&Item, &Item, GraphType, &GrammarDatabase)> for TransitionPair {
     (*root, *next, mode, db).into()
   }
 }
-
-pub trait TransitionPairIter: Iterator<Item = TransitionPair> + Sized + Clone {
-  fn to_next(self) -> impl ItemContainerIter {
-    self.map(|i| i.next)
-  }
-
-  fn to_root(self) -> impl ItemContainerIter {
-    self.map(|i| i.kernel)
-  }
-}
-
-impl<'db, T: Iterator<Item = TransitionPair> + Sized + Clone> TransitionPairIter for T {}
 
 pub trait TransitionPairRefIter<'a>: Iterator<Item = &'a TransitionPair> + Sized + Clone {
   fn to_next(self) -> impl ItemRefContainerIter<'a> {
