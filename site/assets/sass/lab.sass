@@ -43,6 +43,17 @@
     flex-shrink: 0
     margin: 0 20px
 
+.nb-help-iframe
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border: none
+  
+
 .nb-field
 
   $header-height: 40px
@@ -103,14 +114,16 @@
     border-radius: 5px
     overflow: hidden
 
-    .nb-expand-button
+    .nb-expand-button, .nb-help-button
       height: 100
       display: flex
       font-size: 20px
       padding: 0 20px
       pointer-events: all
-      opacity: 0
       cursor: pointer
+
+    .nb-expand-button
+      opacity: 0
 
     .nb-expand-icon
       display: block
@@ -204,6 +217,9 @@
 
       height: $header-height !important
 
+      .nb-help-button
+        display: none
+
       .nb-resize-handle-area
         display: none
         opacity: 0
@@ -239,10 +255,11 @@
   border: 2px solid none
   border-radius: 10px
   box-sizing: content-box
-  padding: 0 10px
-  margin-right: 10px
+  margin: 0 50px
   opacity: 0
   visibility: hidden
+  flex-grow:  1
+  box-sizing: border-box
   top: 2px
   transition: opacity $bts * 2, visibility $bts * 2, top $bts * 4
 
@@ -308,8 +325,15 @@
       height: 40px !important
       width: 40px !important
       border-radius: 5px
+
       .nb-header-left-side
         display: none !important
+
+      .nb-help-button
+        display: none !important
+
+
+
     .nb-body, .nb-resize-handle-area, .nb-expand-button
       display: none !important
     .nb-icon 

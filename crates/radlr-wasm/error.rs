@@ -10,6 +10,7 @@ pub enum ErrorOrigin {
   StatesCreation,
   Ir,
   BytecodeImport,
+  ASTBuild,
 }
 
 #[wasm_bindgen]
@@ -29,6 +30,18 @@ impl JSRadlrSourceError {
   #[wasm_bindgen(getter)]
   pub fn message(&mut self) -> String {
     self.message.clone()
+  }
+
+  pub fn from_str(msg: &str, origin: ErrorOrigin) -> Self {
+    Self {
+      line: 0,
+      col: 0,
+      len: 0,
+      start_offset: 0,
+      end_offset: 0,
+      origin,
+      message: msg.to_string(),
+    }
   }
 }
 

@@ -177,7 +177,7 @@ impl Formatter {
             ASTNode::Indent(_) | ASTNode::Dedent(_) => {
               match Self::interpret_node_mut_ctx(la, ctx, w)? {
                 None => {}
-                _ => unreachable!(),
+                _ => return Err(RadlrError::StaticText("Could not interpret inner text")),
               }
               iter.next();
             }

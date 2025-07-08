@@ -1,15 +1,29 @@
 {{ define "main" -}}
 {{ .Scratch.Set "headerSubtext" "docs" }}
+{{ partial "head/head.html" . }}
 
 <body class="docs">
   {{ partial "scripts/soft_load.html" . }}
   {{ partial "header/header.html" . }}
-  <main>
-    {{ partial "nav/docs_nav.html" . }}
+  <main class="docs-main">
     <content>
       {{ .Content }}
+      {{ range .Sections }}
+      <h1>{{.Title}}</h2>
+        <p>{{.Description}}</p>
+        <div class="subject-section">
+        {{ range .Pages }}
+          <a href="{{ .RelPermalink }}">
+            <div class="subject-page">
+              <h1>{{ .Title }}</h1>
+              <h2>{{ .Description }}</h2>
+            </div>
+          </a>
+          {{end}}
+        </div>
+      {{end}}
+    </div>
     </content>
-    {{ partial "nav/doc_nav.html" . }}
   </main>
 </body>
 {{ end }}

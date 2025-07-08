@@ -2,7 +2,7 @@
   <div class="header-left">
 
     <title>RADLR Lab</title>
-    <a href="{{ relURL " /" }}" title="RADLR lab">
+    <a href="{{ relURL "/" }}" title="RADLR lab">
       <svg id="header-logo" viewBox="0 0 1632 621" version="1.1" xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
         style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
@@ -37,16 +37,19 @@
     {{ end }}
   </div>
   <div class="header-right">
-
-    <button id="open-config-button" class="settings-button" alt="open config panel">
-      <i class="fa fa-clipboard-check" aria-hidden="true"></i>
-    </button>
+    {{ if eq ( .Scratch.Get "headerSubtext" ) "lab" }}
+    <a alt="open config panel">
+      <button id="open-config-button" class="settings-button">
+        <i class="fa fa-clipboard-check" aria-hidden="true"></i>
+      </button>
+    </a>
     <button id="open-settings-button" class="settings-button" alt="open setting panel">
       <i class="fa fa-cog" aria-hidden="true"></i>
     </button>
-    <a href="https://github.com/acweathersby/radlr/tree/public-main/docs" title="RADLR's documentation on Github">
+    <a href="./docs" title="RADLR's documentation on Github">
       <button id="docs-button"> docs </button>
     </a>
+    {{ end }}
     {{ with $.Site.Data.resource_locations }}
     <a href="{{  .github_repo_url }}" title="The RADLR Github repo">
       <button id="github-logo">

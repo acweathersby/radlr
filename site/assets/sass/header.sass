@@ -16,6 +16,10 @@
 
 header
   @include flex-centered-row
+  position: sticky
+  top: 0
+  background-color: #00000083
+  width: 100%;
 
   a
     display: contents
@@ -24,9 +28,15 @@ header
     display: flex
     align-items: center
     flex-direction: row
-    justify-content: space-between
+    justify-content: right
+    
+    
 
   .header-right
+    > *
+      margin: 0 10px
+
+
     min-width: 200px
 
     @include mobile-screens

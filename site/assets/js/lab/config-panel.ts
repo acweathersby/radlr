@@ -2,6 +2,11 @@ import radlr_init, * as radlr from "js/radlr/radlr_wasm.js";
 import { LocalStoreKeys, getLocalValue, setLocalValue, setupOpenCloseTriggers } from "./settings-panel";
 
 
+/**
+ * Updates parser configuration based on UI input
+ * @param settings_changed 
+ * @returns 
+ */
 export async function setupConfig(settings_changed: (cfg: radlr.JSParserConfig) => void) {
   await radlr_init();
 

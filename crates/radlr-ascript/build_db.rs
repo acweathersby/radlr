@@ -34,16 +34,31 @@ pub fn build_database(db: RadlrGrammarDatabase) -> AscriptDatabase {
   let db = adb.db.clone();
   let db = &db;
 
-  construct_initializers(db, &mut adb);
+  if let Err(err) = construct_initializers(db, &mut adb) {
+    adb.errors.push(err);
+    return adb;
+  }
 
-  let nonterm_types = resolve_nonterm_types(db, &mut adb);
+  let nonterm_types = match resolve_nonterm_types(db, &mut adb) {
+    Ok(res) => res,
+    Err(err) => {
+      adb.errors.push(err);
+      return adb;
+    }
+  };
 
   if adb.errors.is_empty() {
     match resolve_nonterm_values(&mut adb, &nonterm_types) {
       Ok(()) => {
-        fill_struct_rules(&mut adb, &nonterm_types);
+        if let Err(err) = fill_struct_rules(&mut adb, &nonterm_types) {
+          adb.errors.push(err);
+          return adb;
+        }
 
-        finalize_structs(&mut adb, &nonterm_types);
+        if let Err(err) = finalize_structs(&mut adb, &nonterm_types) {
+          adb.errors.push(err);
+          return adb;
+        }
 
         resolve_multi_types(&mut adb);
 
@@ -63,11 +78,11 @@ pub fn build_database(db: RadlrGrammarDatabase) -> AscriptDatabase {
   adb
 }
 
-fn finalize_structs(adb: &mut AscriptDatabase, nonterm_types: &OrderedMap<DBNonTermKey, AscriptType>) {
+fn finalize_structs(adb: &mut AscriptDatabase, nonterm_types: &OrderedMap<DBNonTermKey, AscriptType>) -> Result<(), RadlrError> {
   for initializer_index in 0..adb.rules.0.len() {
     match &adb.rules.0[initializer_index] {
       AscriptRule::Struct(..) => {
-        post_process_struct_initializer(adb, initializer_index, nonterm_types);
+        post_process_struct_initializer(adb, initializer_index, nonterm_types)?;
       }
       _ => {}
     }
@@ -104,9 +119,11 @@ fn finalize_structs(adb: &mut AscriptDatabase, nonterm_types: &OrderedMap<DBNonT
       _ => {}
     }
   }
+
+  Ok(())
 }
 
-fn fill_struct_rules(adb: &mut AscriptDatabase, nonterm_types: &OrderedMap<DBNonTermKey, AscriptType>) {
+fn fill_struct_rules(adb: &mut AscriptDatabase, nonterm_types: &OrderedMap<DBNonTermKey, AscriptType>) -> Result<(), RadlrError> {
   let db = adb.db.clone();
 
   for initializer_index in 0..adb.rules.0.len() {
@@ -120,18 +137,20 @@ fn fill_struct_rules(adb: &mut AscriptDatabase, nonterm_types: &OrderedMap<DBNon
           Some(ast) => match ast {
             ASTToken::Defined(ast) => match &ast.ast {
               ASTNode::AST_Struct(strct) => {
-                process_struct_initializer(adb, strct, initializer_index, nonterm_types, db_nonterm_key);
+                process_struct_initializer(adb, strct, initializer_index, nonterm_types, db_nonterm_key)?;
               }
-              _ => unreachable!(),
+              _ => return Err(RadlrError::StaticText("Not a struct")),
             },
-            _ => unreachable!(),
+            _ => return Err(RadlrError::StaticText("Not a struct")),
           },
-          _ => unreachable!(),
+          _ => return Err(RadlrError::StaticText("Not a struct")),
         };
       }
       _ => {}
     }
   }
+
+  Ok(())
 }
 
 fn resolve_struct_definitions(adb: &mut AscriptDatabase) {
@@ -212,7 +231,7 @@ pub fn process_struct_initializer(
   initializer_index: usize,
   nonterm_types: &OrderedMap<DBNonTermKey, AscriptType>,
   db_nt_key: DBNonTermKey,
-) {
+) -> Result<(), RadlrError> {
   let db = adb.db.clone();
   let db = db.as_ref();
   let g_id = adb.db.root_grammar_id;
@@ -221,7 +240,7 @@ pub fn process_struct_initializer(
 
   let struct_initializer = match &mut rules[initializer_index] {
     AscriptRule::Struct(_, init) => init,
-    _ => unreachable!(),
+    _ => return Err(RadlrError::StaticText("Could not find struct initializer")),
   };
 
   let rule_index = struct_initializer.rule_index;
@@ -247,7 +266,7 @@ pub fn process_struct_initializer(
         let tok_id = StringId("tok".intern(s_store));
         ("tok".to_string(), tok_id, Some(ast.clone()), true, Default::default())
       }
-      _ => unreachable!(),
+      _ => return Err(RadlrError::StaticText("Encountered Invalid Prop")),
     };
     seen.insert(prop_name);
 
@@ -330,20 +349,22 @@ pub fn process_struct_initializer(
       ast_prop.is_optional |= true;
     }
   }
+
+  Ok(())
 }
 
 pub fn post_process_struct_initializer(
   adb: &mut AscriptDatabase,
   initializer_index: usize,
   nonterm_types: &OrderedMap<DBNonTermKey, AscriptType>,
-) {
+) -> Result<(), RadlrError> {
   let db = adb.db.clone();
   let db = db.as_ref();
   let AscriptDatabase { rules, structs, multi_type_lu, multi_types, .. } = adb;
 
   let struct_initializer = match &mut rules[initializer_index] {
     AscriptRule::Struct(_, init) => init,
-    _ => unreachable!(),
+    _ => return Err(RadlrError::StaticText("Could not find struct initializer")),
   };
 
   let rule_index = struct_initializer.rule_index;
@@ -425,6 +446,8 @@ pub fn post_process_struct_initializer(
       }
     }
   }
+
+  Ok(())
 }
 
 #[allow(unused)]
@@ -593,7 +616,7 @@ fn add_to_type_list(ty: AscriptType, types: &mut AscriptTypes, multi_i: &mut Vec
   ty
 }
 
-pub fn construct_initializers(db: &GrammarDatabase, adb: &mut AscriptDatabase) {
+pub fn construct_initializers(db: &GrammarDatabase, adb: &mut AscriptDatabase) -> Result<(), RadlrError> {
   for (id, db_rule) in db.rules().iter().enumerate().filter(|(_, r)| !r.is_scanner) {
     let rule = &db_rule.rule;
     let g_id = db_rule.rule.g_id;
@@ -633,7 +656,7 @@ pub fn construct_initializers(db: &GrammarDatabase, adb: &mut AscriptDatabase) {
             rule_local_string: rule.tok.to_string().intern(db.string_store()),
             optional: false,
           }),
-          _ => unreachable!(),
+          _ => return Err(RadlrError::StaticText("Incorrect Initialize for Struct")),
         },
         ASTToken::ListEntry(_) => AscriptRule::ListInitial(id, Initializer {
           g_id,
@@ -663,10 +686,14 @@ pub fn construct_initializers(db: &GrammarDatabase, adb: &mut AscriptDatabase) {
 
     adb.rules.push(ast_rule);
   }
+  Ok(())
 }
 
 /// Derives the AST types of all parser NonTerminals.
-pub fn resolve_nonterm_types(db: &GrammarDatabase, adb: &mut AscriptDatabase) -> OrderedMap<DBNonTermKey, AscriptType> {
+pub fn resolve_nonterm_types(
+  db: &GrammarDatabase,
+  adb: &mut AscriptDatabase,
+) -> Result<OrderedMap<DBNonTermKey, AscriptType>, RadlrError> {
   let AscriptDatabase { errors, multi_type_lu, multi_types, .. } = adb;
 
   let mut resolved_nonterms = OrderedMap::new();
@@ -776,7 +803,7 @@ pub fn resolve_nonterm_types(db: &GrammarDatabase, adb: &mut AscriptDatabase) ->
           None => AscriptType::Scalar(AscriptScalarType::Token),
         }
       }
-      _ => unreachable!(""),
+      _ => return Err(RadlrError::StaticText("()")),
     };
 
     if ty.is_unknown() {
@@ -808,7 +835,7 @@ pub fn resolve_nonterm_types(db: &GrammarDatabase, adb: &mut AscriptDatabase) ->
     }
   }
 
-  resolved_nonterms
+  Ok(resolved_nonterms)
 }
 
 fn resolve_nonterm_values(
@@ -1591,11 +1618,11 @@ fn get_resolved_type(
         Vec { val_type: base_type } => Ok(Aggregate(Vec {
           val_type: get_resolved_type(a, &Scalar(*base_type), multi_i, multi_m, target_nonterm)?.as_scalar().unwrap_or_default(),
         })),
-        Map { .. } => todo!("Issue invalid joining of scalar and map"),
+        Map { .. } => return Err(RadlrError::Text(format!("Issue invalid joining of scalar and map"))),
       },
 
       Undefined => Ok(*b),
-      _ => todo!("resolve different types {a:?} {b:?}"),
+      _ => return Err(RadlrError::Text(format!("resolve different types {a:?} {b:?}"))),
     },
     Scalar(b_scalar) => match a {
       Undefined => Ok(*b),
@@ -1682,11 +1709,11 @@ fn get_resolved_type(
       }
       Aggregate(a_gg) => match b_scalar {
         AscriptScalarType::Struct(..) => Err(RadlrError::StaticText("Incompatible Types")),
-        _ => todo!("Resolve types agg_a:{a_gg:?} ty:{b_scalar:?}"),
+        _ => return Err(RadlrError::Text(format!("Resolve types agg_a:{a_gg:?} ty:{b_scalar:?}"))),
       },
-      _ => todo!("Resolve types scaler:{a:?} ty:{b:?}"),
+      _ => return Err(RadlrError::Text(format!("Resolve types scaler:{a:?} ty:{b:?}"))),
     },
-    _ => todo!("Resolve types ty:{a:?} ty:{b:?}"),
+    _ => return Err(RadlrError::Text(format!("Resolve types ty:{a:?} ty:{b:?}"))),
   }
 }
 

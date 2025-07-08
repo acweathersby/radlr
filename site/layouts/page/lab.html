@@ -68,7 +68,7 @@
   <div id="config-panel" class="inactive">
     <div id="settings-content">
       <div class="close-button">x</div>
-      <h1>Parser Settings</h1>
+      <h1>Parser Configuration</h1>
       <h2>Algorithm</h2>
       <label id="ALLOW_CALLS">
         <div class=title>Enable recursive descent parsing</div>
@@ -177,8 +177,9 @@
   </div>
   <div id="settings-panel" class="inactive">
     <div id="settings-content">
+      <h1>Lab Settings</h1>
       <div class="close-button">x</div>
-      <h1>Themes</h1>
+      <h2>Themes</h2>
       <div class="theme-section">
         <div class="theme" data-target="system" data-text="System Default" data-focus="" data-fg="" data-mg=""
           data-bg="">
@@ -189,7 +190,7 @@
         {{ index . 1 | safeHTML -}}
         {{ end }}
       </div>
-      <h1>Data Usage and Local Resources </h1>
+      <h2>Data Usage and Local Resources </h2>
       <p>
         By enabling 'Local Workflow', you acknowledge and accept the use of web technologies that enable RADLR to
         store
@@ -279,6 +280,7 @@
   <template id="nb-field-template">
     <div class="nb-content-field">
       <div class="nb-header">
+
         <div class="nb-header-left-side">
           <div class="nb-label"></div>
         </div>
@@ -295,6 +297,9 @@
           <div class="nb-minimize-icon">
             <i class="fa-solid fa-compress"></i>
           </div>
+        </div>
+        <div class="nb-help-button">
+          <i class="fa-solid fa-question-circle"></i>
         </div>
       </div>
       <div class="nb-body"></div>

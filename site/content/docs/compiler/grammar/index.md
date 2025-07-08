@@ -4,16 +4,15 @@ description: "Radlr Documentation"
 draft: false
 ---
 
+# Grammars
+## The heart of Parsers and Lexers
 
-# Writing A Radlr Grammar
-
-A Radlr grammar file is a document, written in a syntax inspired by [EBNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form) and common regex expressions, that is used to define a specific language. Radlr uses grammars to create parsers and fuzzer
+In general terms, a lexer maps a sequence of characters or bytes onto a sequence of tokens. A parser maps the resulting sequence of tokens to a hierarchy of symbols, often referred to a parse tree, a concrete syntax tree (CST), or an abstract syntax tree (AST). Regular expressions are generally suited for producing tokens, and more powerful parsing algorithms such as LL, LR, recursive descent, and Early parsers are utilized for creating the CSTs. RADLR grammars are a combination of lexer and parser rules that describe how characters should be turned into tokens, and how tokens should be grouped into symbols. The syntax of these grammars are inspired by [Extended Backus Naur form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form) syntax, and adapted to suit the capabilities of RADLR.
 
 ## A Brief Introduction To Grammars
 
-> If you are familia with grammars you may want to skip to [here](#radlr-rules) to get to the meat of things.
+> If you are familiar with grammars you may want to skip to [here](#radlr-rules) to get to the meat of things.
 
-A grammar is composed of one or more rules, with each rule defining how two sets of symbols relate to each other. The general form of a rule is  `A -> a` where the `->` separating the left part of the rule from its right. 
 
 When we replace the set of symbols on the left part of the rule with the symbols on the right part, we say we are generating a string in the language the grammar defines. 
 

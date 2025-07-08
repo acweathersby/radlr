@@ -2,14 +2,14 @@
 {{- $id := slicestr (md5 .Inner) 0 16 -}}
 {{- $data := split .Inner "============" -}}
 <div class=code-block>
-    <pre id="{{$id}}">{{ trim (index $data 0) " \n" }}</pre>
-    <pre id="{{$id}}-parser" hidden>{{ trim (index $data 1) " \n" }}</pre>
-    <a class=lab-candidate data-id="{{$id}}" onclick="lab_anchor_click(this)"
-        href="{{ relURL "/lab"}}#page:{{ (printf "%s#%s" .Page.Permalink $id )| base64Encode  | safeURL  }}"><i class="icon-beaker"></i>
-        <i class="fa-solid fa-flask"></i> run in lab </a>
+  <pre id="{{$id}}" class="lab-grammar">{{ trim (index $data 0) " \n" }}</pre>
+  <pre id="{{$id}}-parser" class="lab-parser" hidden>{{ trim (index $data 1) " \n" }}</pre>
+  <a class=lab-candidate data-id="{{$id}}" href="{{ relURL "/" }}#page:{{ (printf "%s#%s" .Page.Permalink $id )|
+    base64Encode | safeURL }}"><i class="icon-beaker"></i>
+    <i class="fa-solid fa-flask"></i> run in lab </a>
 </div>
 {{ else -}}
 <div class=code-block>
-    <pre>{{ .Inner }}</pre>
+  <pre>{{ .Inner }}</pre>
 </div>
 {{end -}}

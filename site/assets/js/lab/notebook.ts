@@ -402,8 +402,6 @@ export class NBField {
   constructor(ele = document.createElement("div")) {
     this.ele = ele;
     this.ele.classList.add("nb-field")
-
-
   }
 
   latch_height() {
@@ -473,12 +471,14 @@ export class NBBlankField extends NBField {
 }
 
 export class NBContentField<EventObj = null, event_names = ""> extends NBField {
+  public help_button: HTMLElement;
   header: HTMLElement;
   body: HTMLElement;
   label: HTMLElement;
   resize_handle: HTMLElement;
   expand_button: HTMLElement;
   collapsed: boolean = false;
+  help_doc_path: string = ""
   pre_collapse_size: number = 0
   listeners: Map<event_names, ((arg: EventObj) => void)[]> = new Map;
   relative_height: string = ""
@@ -494,6 +494,7 @@ export class NBContentField<EventObj = null, event_names = ""> extends NBField {
     this.body = <any>this.ele.querySelector(".nb-body");
     this.expand_button = <any>this.ele.querySelector(".nb-expand-button");
     this.resize_handle = <any>this.ele.querySelector(".nb-resize-handle");
+    this.help_button = <any>this.ele.querySelector(".nb-help-button");
     this.ele.querySelector(".nb-icon-container")!.setAttribute("title", name);
 
     this.label.innerHTML = name;
@@ -507,7 +508,6 @@ export class NBContentField<EventObj = null, event_names = ""> extends NBField {
       capture: true,
       passive: true
     });
-
 
     this.expand_button.addEventListener("click", e => {
       this.set_fullscreen(!this.is_fullscreen);
@@ -534,6 +534,10 @@ export class NBContentField<EventObj = null, event_names = ""> extends NBField {
 
   private get is_expanded(): boolean {
     return !this.ele.classList.contains("collapsed");
+  }
+
+  set_help_doc_path(path: string) {
+    this.help_doc_path = path
   }
 
   set_icon(ele: HTMLElement | string) {

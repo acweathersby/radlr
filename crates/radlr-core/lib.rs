@@ -32,6 +32,7 @@ pub use types::{
   DBTermKey,
   DBTokenData,
   ErrorClass,
+  GrammarDatabase,
   GrammarHeader,
   GrammarId,
   GrammarIdentities,
@@ -46,7 +47,6 @@ pub use types::{
   ParseStatesVec,
   ParserClassification,
   ParserConfig,
-  GrammarDatabase,
   ParserMetrics,
   RadlrError,
   RadlrErrorSeverity,
@@ -62,5 +62,6 @@ pub use types::{
 pub use builder::*;
 pub use utils::{create_u64_hash as hash_id_value_u64, hash_group_btreemap};
 pub use writer::code_writer::CodeWriter;
+
 
 pub mod test;

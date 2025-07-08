@@ -67,13 +67,26 @@ impl JSGrammarDB {
   /// encountered while generating the script.
   pub fn get_ast_generating_script(&self) -> Result<String, PositionedErrors> {
     let atat_json_script = include_str!("../../atat_scripts/ast/json.atat");
+
     let ast_db: AscriptDatabase = (self.0.as_ref()).into();
+
     if let Some(errors) = ast_db.get_errors() {
       Err(PositionedErrors::from((&errors.to_vec(), ErrorOrigin::Grammar)))
     } else {
       let buf = BufWriter::new(Vec::new());
-      let buf = ast_db.format(atat_json_script, buf, 100, "", &[]).expect("ast script interpreter failed");
-      Ok(String::from_utf8(buf.into_inner().expect("Could not read buffer bytes")).expect("could derive string from buffer"))
+
+      let Ok(buf) = ast_db.format(atat_json_script, buf, 100, "", &[]) else {
+        return Err(to_err(RadlrError::StaticText("Failed to create ast"), ErrorOrigin::Grammar));
+      };
+
+      let Ok(inner_buf) = buf.into_inner() else {
+        return Err(to_err(RadlrError::StaticText("Could not read buffer bytes"), ErrorOrigin::Grammar));
+      };
+
+      match String::from_utf8(inner_buf) {
+        Ok(result) => Ok(result),
+        Err(..) => Err(to_err(RadlrError::StaticText("Could buffer bytes could not be read as UTF8"), ErrorOrigin::Grammar)),
+      }
     }
   }
 }

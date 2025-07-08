@@ -1,16 +1,15 @@
 {{ define "main" -}}
 {{ .Scratch.Set "headerSubtext" "docs" }}
-{{- $docsScript := resources.Get "js/lab/docs_handler.ts" | js.Build (dict "target" "esnext" "format" "esm" "minify" true) -}}
+{{ partial "head/head.html" . }}
+
 <body class="docs">
-    {{ partial "scripts/soft_load.html" . }}
-    {{ partial "header/header.html" . }}
-    <main>
-        {{ partial "nav/docs_nav.html" . }}
-        <content>
-            {{ .Content }}
-        </content>
-        {{ partial "nav/doc_nav.html" . }}
-    </main>
-    <script type="module" src="{{ $docsScript.Permalink }}"></script>
+  {{ partial "scripts/soft_load.html" . }}
+  {{ partial "header/header.html" . }}
+  <main class="docs-main">
+    <content>
+
+      {{ .Content }}
+    </content>
+  </main>
 </body>
 {{ end }}

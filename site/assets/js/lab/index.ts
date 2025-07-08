@@ -11,6 +11,7 @@ import * as parse_info from "./parser_info";
 import * as syntax_highlight from "./syntax_highlight"
 import * as ast from "./ast"
 import * as cst from "./cst"
+import init_help from "./help_docs";
 
 
 export async function init(compiler_worker_path: string) {
@@ -22,31 +23,47 @@ export async function init(compiler_worker_path: string) {
   grammar_input_field.set_content_visible(true);
   grammar_input_field.set_text("");
   grammar_input_field.set_icon(`<pre><></pre>`);
+  grammar_input_field.set_help_doc_path("./docs/lab/grammar_panel");
 
   let parser_info_field = nb.add_field(new NBContentField("Parser Info"), -1);
   parser_info_field.set_content_visible(false);
   parser_info_field.set_icon(`<i class="fa-solid fa-circle-info"></i>`);
+  parser_info_field.set_help_doc_path("./docs/lab/parser_info_panel");
 
   pipeline.GrammarDBNode.worker_path = compiler_worker_path;
 
   let parser_input_field = nb.add_field(new NBEditorField("Parser Input"), 0);
   parser_input_field.set_content_visible(true)
   parser_input_field.set_icon(`<i class="fa-solid fa-quote-left"></i>`);
+  parser_input_field.set_help_doc_path("./docs/lab/parser_input_panel");
 
-  let ast_field = nb.add_field(new NBContentField("AST Nodes"), 1);
+  let ast_field = nb.add_field(new NBContentField("AST Nodes"), -1);
   ast_field.set_icon(`<i class="fa-solid fa-share-nodes"></i>`);
+  ast_field.set_help_doc_path("./docs/lab/ast_panel");
 
-  let cst_field = nb.add_field(new NBContentField("CST Nodes"), -1);
+  let cst_field = nb.add_field(new NBContentField("CST Nodes"), 1, 1);
   cst_field.set_icon(`<i class="fa-solid fa-sitemap"></i>`);
+  cst_field.set_help_doc_path("./docs/lab/cst_panel");
 
   let syntax_highlighting_field = nb.add_field(new NBContentField("Syntax Highlighting"), -1);
   syntax_highlighting_field.set_content_visible(true)
   syntax_highlighting_field.set_icon(`<i class="fa-solid fa-palette"></i>`);
+  syntax_highlighting_field.set_help_doc_path("./docs/lab/syntax_highlighting_panel");
 
 
   let formatting_rules_field = nb.add_field(new NBContentField("Syntax Formatting"), -1);
   formatting_rules_field.set_content_visible(true)
   formatting_rules_field.set_icon(`<i class="fa-solid fa-align-right"></i>`);
+  formatting_rules_field.set_help_doc_path("./docs/lab/formatting_rules_panel");
+
+
+  let help_panel_field = nb.add_field(new NBContentField("Help"), 1, 0)
+  help_panel_field.set_content_visible(true);
+  help_panel_field.set_icon(`<pre>?</pre>`);
+  help_panel_field.set_help_doc_path("./docs/lab");
+
+
+
 
   const controls = new Controls();
 
@@ -162,8 +179,11 @@ export async function init(compiler_worker_path: string) {
   await rad_init;
 
   parse_info.init(parser_info_field, parser_input_field, grammar_pipeline_node, parser_player_node, controls);
+
   cst.init(cst_field, parser_input_field, grammar_pipeline_node);
   ast.init(ast_field, parser_input_field, grammar_pipeline_node);
+
+
   syntax_highlight.init(syntax_highlighting_field, parser_input_field, grammar_pipeline_node)
 
   let { grammar: example_grammar, input: example_input } = grammar_examples[Math.round(Math.random() * (grammar_examples.length - 1))];
@@ -183,6 +203,18 @@ export async function init(compiler_worker_path: string) {
   setTimeout(() => {
     document.getElementById("loading-screen")!.classList.remove("active");
   }, 500);
+
+
+  init_help(nb, help_panel_field, grammar_input_field, parser_input_field, [
+    <NBContentField><any>grammar_input_field,
+    parser_info_field,
+    <NBContentField><any>parser_input_field,
+    ast_field,
+    cst_field,
+    syntax_highlighting_field,
+    formatting_rules_field,
+    help_panel_field
+  ]);
 }
 
 const grammar_examples = [
