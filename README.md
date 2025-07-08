@@ -27,3 +27,10 @@ radlr compile --ast -t rust ./path/to/grammar.radlr
 ```
 radlr dev
 ```
+
+
+# Lab
+
+Checkout the [lab](https://acweathersby.github.io/radlr/) 
+
+![Lab Preview](./site/assets/img/lab-preview.png)
