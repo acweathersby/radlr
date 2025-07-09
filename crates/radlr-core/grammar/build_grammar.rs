@@ -967,7 +967,6 @@ fn get_nonterminal_symbol<'a>(
     ASTNode::AppendRules(r) => get_nonterminal_symbol(g_data, &r.name_sym),
     ASTNode::Template_NonTerminal_Symbol(sym) => get_nonterminal_symbol(g_data, &sym.name),
     ASTNode::TemplateRules(sym) => (Some(sym.name_sym.as_ref()), None),
-    #[cfg(debug_assertions)]
     _ => (None, None),
   }
 }
