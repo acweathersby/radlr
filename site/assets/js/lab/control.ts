@@ -5,6 +5,7 @@ export class Controls extends Eventable<{
   "reset": undefined,
   "play": undefined,
   "step": undefined,
+  "stop": undefined,
   "jump": undefined
 }> {
   play_button: DebuggerButton

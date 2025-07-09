@@ -310,21 +310,38 @@ export class SyntaxGraphEngine {
     this.need_ui_buffer_update = true;
   }
 
-  updateNode(index: number, x: number, y: number) {
+  update_node(index: number, x: number, y: number) {
     if (index < this.nodes.length) {
       this.nodes[index].pos.x = x
       this.nodes[index].pos.y = y
     }
   }
 
-  clearNodes() {
+  clear_nodes() {
     this.nodes.length = 0;
     this.connections.length = 0;
     this.glyph_count = 0;
     this.line_count = 0;
+    this.node_count = 0;
   }
 
-  addConnection(node_a: number, node_b: number) {
+  clear_node_buffers() {
+    let { gl, node_program, line_program, text_program } = this;
+
+    let clear_array = this.node_array_a;
+
+    for(let i =0; i < clear_array.length; i++ ){
+      clear_array[i] = 0
+    }
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, this.node_texture_a);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB32F, 512, 512, 0, gl.RGB, gl.FLOAT, clear_array);
+    gl.bindTexture(gl.TEXTURE_2D, this.node_texture_b);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB32F, 512, 512, 0, gl.RGB, gl.FLOAT, clear_array);
+  }
+
+  add_connection(node_a: number, node_b: number) {
     this.connections.push(node_a, node_b);
   }
 
@@ -373,9 +390,8 @@ export class SyntaxGraphEngine {
       gl.INVALID_ENUM
       gl.INVALID_OPERATION
       console.log({ error });
-      throw "Have gl errors"
+     // throw "Have gl errors"
     }
-    error = gl.getError()
 
     if (this.t < 1) {
 

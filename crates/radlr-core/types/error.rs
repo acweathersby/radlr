@@ -81,7 +81,7 @@ pub(crate) mod severity {
     /// A warning that can be ignored but would yield better results
     /// if heeded.
     Warning,
-    /// An error that compromises the integrate of the compile process
+    /// An error that compromises the current compilation process and forcing it to halt
     /// and halts progression.
     #[default]
     Critical,
@@ -151,7 +151,7 @@ pub enum RadlrError {
   /// Plaintext error message
   StaticText(&'static str),
 
-  /// Error Occured During parse state construction
+  /// Error occurred during parse state construction
   StateConstructionError(StateConstructionError),
 
   /// Multiple Errors
@@ -188,6 +188,18 @@ impl RadlrError {
       id:         (ErrorClass::Parsing, 99, "parse-error").into(),
       msg:        err.message,
       inline_msg: err.inline_message,
+      ps_msg:     Default::default(),
+      severity:   RadlrErrorSeverity::Critical,
+    }
+  }
+
+  pub fn from_source_token(tok: &Token, path: PathBuf, msg: &str, inline: &str, error_id: ErrorId, severity: RadlrErrorSeverity) -> RadlrError {
+    Self::SourceError {
+      loc:        tok.clone(),
+      path:       path.to_str().unwrap().to_string(),
+      id:         error_id,
+      msg:        msg.to_string(),
+      inline_msg: inline.to_string(),
       ps_msg:     Default::default(),
       severity:   RadlrErrorSeverity::Critical,
     }

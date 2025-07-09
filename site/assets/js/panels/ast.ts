@@ -1,9 +1,9 @@
 import { JSBytecodeParserDB, get_nonterminal_name_from_id } from "js/radlr/radlr_wasm";
-import { NBContentField, NBEditorField } from "./notebook";
-import { Parser } from "./parser";
-import { GrammarDBNode, InputNode } from "./pipeline";
+import { NBContentField, NBEditorField } from "../lab/notebook";
+import { Parser } from "../lab/parser";
+import { GrammarDBNode, InputNode } from "../lab/pipeline";
 import * as radlr from "js/radlr/radlr_wasm";
-import { RadlrError } from "./error";
+import { RadlrError } from "../lab/error";
 import { SyntaxGraphEngine } from "js/graph_sys";
 
 
@@ -123,7 +123,7 @@ type Node = { name: string, params: { [k: string]: Node } } | string | number | 
 
 
 function run_cst_render(ast: Rules, input: string, db: JSBytecodeParserDB | null, renderer: SyntaxGraphEngine) {
-  renderer.clearNodes();
+  renderer.clear_nodes();
   renderer.flip_nodes();
 
   if (!input)
@@ -317,13 +317,13 @@ function run_cst_render(ast: Rules, input: string, db: JSBytecodeParserDB | null
             off_y -= 1 * scale;
 
             let c_id = renderer.addNode(off_x, off_y, i + "", [123, 120, 255]);
-            renderer.addConnection(par_id, c_id);
+            renderer.add_connection(par_id, c_id);
 
             let { x, y, id } = draw_node(node[i], off_x + 1 * scale, off_y, scale);
 
             off_y = y;
 
-            renderer.addConnection(id, c_id);
+            renderer.add_connection(id, c_id);
           }
           return { id: par_id, x: off_x, y: off_y };
         } else if (node instanceof Map) {
@@ -332,13 +332,13 @@ function run_cst_render(ast: Rules, input: string, db: JSBytecodeParserDB | null
             off_y -= 1 * scale;
 
             let c_id = renderer.addNode(off_x, off_y, name, [123, 120, 255]);
-            renderer.addConnection(par_id, c_id);
+            renderer.add_connection(par_id, c_id);
 
             let { x, y, id } = draw_node(val, off_x + 1 * scale, off_y, scale);
 
             off_y = y;
 
-            renderer.addConnection(id, c_id);
+            renderer.add_connection(id, c_id);
           }
           return { id: par_id, x: off_x, y: off_y };
         } else {
@@ -349,13 +349,13 @@ function run_cst_render(ast: Rules, input: string, db: JSBytecodeParserDB | null
             let c_node = node.params[name];
 
             let c_id = renderer.addNode(off_x, off_y, name, [123, 0, 20]);
-            renderer.addConnection(par_id, c_id);
+            renderer.add_connection(par_id, c_id);
 
             let { x, y, id } = draw_node(c_node, off_x + 1 * scale, off_y, scale);
 
             off_y = y;
 
-            renderer.addConnection(id, c_id);
+            renderer.add_connection(id, c_id);
           }
 
           return { id: par_id, x: off_x, y: off_y };

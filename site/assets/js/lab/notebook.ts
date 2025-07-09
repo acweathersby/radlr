@@ -539,6 +539,11 @@ export class NBContentField<EventObj = null, event_names = ""> extends NBField {
   set_help_doc_path(path: string) {
     this.help_doc_path = path
   }
+  
+  /** Updates the color of the body border, or unsets it if the color arg is the empty string  */
+  set_info_border(color: string =  "")  {
+    this.body.style.borderColor = color;
+  }
 
   set_icon(ele: HTMLElement | string) {
     if (typeof ele == "string") {
@@ -549,11 +554,11 @@ export class NBContentField<EventObj = null, event_names = ""> extends NBField {
     }
   }
 
-  set_content_visible(is_content_visible: boolean) {
-    if (is_content_visible) {
-      this.ele.classList.add("content-visible");
+  set_content_hidden(is_content_hidden: boolean) {
+    if (is_content_hidden) {
+      this.ele.classList.add("content-hidden");
     } else {
-      this.ele.classList.remove("content-visible");
+      this.ele.classList.remove("content-hidden");
     }
   }
 

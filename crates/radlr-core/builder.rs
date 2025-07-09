@@ -172,7 +172,11 @@ impl RadlrGrammar {
     if replace || !known_imports.contains(&id.guid) {
       match compile_grammar_from_str(source, path.to_owned(), soup.string_store.clone()) {
         Ok((new_soup, _)) => {
-          blend_soups(soup.clone(), std::sync::Arc::into_inner(new_soup).expect("There should be only one reference for this"))?;
+           let Some(reference) = std::sync::Arc::into_inner(new_soup) else {
+            return Err(RadlrError::StaticText("Could not take over ownership of soup Arc"));
+          };
+          
+          blend_soups(soup.clone(), reference)?;
         }
         Err(err) => errors.extend(err.flatten()),
       };

@@ -1,15 +1,16 @@
-import { NB, NBContentField, NBEditorField } from "./notebook";
+import { NB, NBContentField, NBEditorField } from "../lab/notebook";
 
 export default function init_help(nb: NB, help_field: NBContentField, grammar_input_field: NBEditorField, parse_input_field: NBEditorField, fields: NBContentField[]) {
 
   let iframe = document.createElement("iframe");
   iframe.classList.add("nb-help-iframe")
 
+  
 
   iframe.addEventListener("load", () => {
     if (iframe.contentDocument) {
 
-      let header = iframe.contentDocument.querySelector("header"); 
+      let header = iframe.contentDocument.querySelector("header");
       if (header)
         header.style.display = "none";
 
@@ -35,8 +36,6 @@ export default function init_help(nb: NB, help_field: NBContentField, grammar_in
                 //@ts-ignore
                 grammar_input_field.set_text(grammar_input.innerText);
 
-                console.log({ grammar_input, parser_input })
-
                 return false;
 
               })
@@ -46,14 +45,18 @@ export default function init_help(nb: NB, help_field: NBContentField, grammar_in
       }
     }
 
-    help_field.set_loading(false);
 
+    setTimeout(() => {
+      help_field.set_loading(false);
+      help_field.set_content_hidden(false);
+    }, 300);
   })
 
   for (const field of fields) {
     field.help_button.addEventListener("click", _ => {
       if (field.help_doc_path) {
         help_field.set_loading(true);
+        help_field.set_content_hidden(true);
         iframe.src = field.help_doc_path;
       }
     })
@@ -62,5 +65,6 @@ export default function init_help(nb: NB, help_field: NBContentField, grammar_in
   help_field.body.appendChild(iframe);
 
   help_field.set_loading(true);
+  help_field.set_content_hidden(true);
   iframe.src = help_field.help_doc_path;
 }

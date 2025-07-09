@@ -24,7 +24,7 @@ self.addEventListener('message', async function (event) {
     try {
       await radlr_init()
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
 
     postMessage({ type: "ready" });

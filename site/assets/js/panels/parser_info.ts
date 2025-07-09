@@ -1,16 +1,15 @@
 import * as radlr from "js/radlr/radlr_wasm.js";
-import * as pipeline from "./pipeline";
-import { NBContentField, NBEditorField } from "./notebook";
-import { Controls } from "./control";
+import * as pipeline from "../lab/pipeline";
+import { NBContentField, NBEditorField } from "../lab/notebook";
+import {  ParserPlayer } from "js/lab/parser";
 
 export function init(
   parser_info_field: NBContentField,
   parser_input_field: NBEditorField,
   grammar_pipeline_node: pipeline.GrammarDBNode,
-  parser_player_node: pipeline.ParserPlayerNode,
-  controls: Controls
+  parser_player: ParserPlayer
 ) {
-  parser_info_field.set_content_visible(false);
+  parser_info_field.set_content_hidden(false);
   let db: radlr.JSBytecodeParserDB | null = null;
   let bytecode: StatefullDV | null = null;
 
@@ -38,41 +37,46 @@ export function init(
     bytecode_view.create_debug_info(bytecode.to());
   })
 
-  parser_player_node.addListener("execute_state", debug_info => {
-    instruction_view.handle_debug_info(debug_info, parser_player_node.input);
-    bytecode_view.handle_state(debug_info);
-  })
-
-  parser_player_node.addListener("execute_instruction", debug_info => {
-    if (bytecode) {
-      bytecode_view.handle_instruction(bytecode.to(debug_info.instruction), debug_info, parser_player_node.input);
+  parser_player.addListener("state", ({interactive, data: debug_info}) => {
+    if(interactive) {
+      instruction_view.handle_debug_info(debug_info, parser_player.input);
+      bytecode_view.handle_state(debug_info);
     }
-    instruction_view.handle_debug_info(debug_info, parser_player_node.input);
   })
 
-  parser_player_node.addListener("execute_instruction", debug_info => {
-    let ctx = debug_info.ctx;
+  parser_player.addListener("instruction",  ({interactive, data: debug_info})  => {
+    if(interactive) {
+      if (bytecode) {
+        bytecode_view.handle_instruction(bytecode.to(debug_info.instruction), debug_info, parser_player.input);
+      }
+      instruction_view.handle_debug_info(debug_info, parser_player.input);
+    }
+  })
 
-    parser_input_field.remove_character_classes();
-    parser_input_field.add_character_class(ctx.input_ptr, ctx.input_ptr + 1, "dbg-input-pos");
-    parser_input_field.add_character_class(ctx.anchor_ptr, ctx.anchor_ptr + 1, "dbg-anchor-pos");
-    parser_input_field.add_character_class(ctx.begin_ptr, ctx.begin_ptr + 1, "dbg-begin-pos");
-    parser_input_field.add_character_class(ctx.end_ptr, ctx.end_ptr + 1, "dbg-end-pos");
-
-    if (debug_info.is_scanner) {
-      parser_input_field.add_character_class(ctx.sym_ptr, ctx.sym_ptr + 1, "dbg-sym-pos");
-      parser_input_field.add_character_class(ctx.sym_ptr, ctx.input_ptr, "dbg-sym");
-    } else if (ctx.sym_len > 0) {
-      parser_input_field.add_character_class(ctx.sym_ptr, ctx.sym_ptr + ctx.sym_len, "dbg-sym");
+  parser_player.addListener("instruction",  ({interactive, data: debug_info})  => { 
+    if(interactive) {
+      let ctx = debug_info.ctx;
+      
+      parser_input_field.remove_character_classes();
+      parser_input_field.add_character_class(ctx.input_ptr, ctx.input_ptr + 1, "dbg-input-pos");
+      parser_input_field.add_character_class(ctx.anchor_ptr, ctx.anchor_ptr + 1, "dbg-anchor-pos");
+      parser_input_field.add_character_class(ctx.begin_ptr, ctx.begin_ptr + 1, "dbg-begin-pos");
+      parser_input_field.add_character_class(ctx.end_ptr, ctx.end_ptr + 1, "dbg-end-pos");
+      
+      if (debug_info.is_scanner) {
+        parser_input_field.add_character_class(ctx.sym_ptr, ctx.sym_ptr + 1, "dbg-sym-pos");
+        parser_input_field.add_character_class(ctx.sym_ptr, ctx.input_ptr, "dbg-sym");
+      } else if (ctx.sym_len > 0) {
+        parser_input_field.add_character_class(ctx.sym_ptr, ctx.sym_ptr + ctx.sym_len, "dbg-sym");
+      }
     }
   });
 
-
-  controls.addListener("reset", () => {
+/*   parser_player.addListener("reset", () => {
     parser_input_field.remove_character_classes();
     parser_player_node.reset();
     bytecode_view.reset();
-  });
+  }) */
 }
 
 type TableInfo = {

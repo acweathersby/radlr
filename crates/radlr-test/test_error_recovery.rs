@@ -207,32 +207,13 @@ pub fn construct_derror_recovering_erlang_toy() -> RadlrResult<()> {
   let source = r#"
   IGNORE { c:sp }
 
-  <> Program >            (Message{1} | Condition | Definition)+{2}
-  
-  <> Operand  >           "(" Message ")" 
-              |           "'" tk:identifier 
-              |           tk:StringLiteral 
-              |           tk:NumberLiteral
-  
-  <> Message >                       Operand? (tk:identifier Operand)* "."
-  
-  <> Condition >                     "if" Message "then" Program
-                                     ("elif" Message "then" Program)*
-                                     ("else" Program)?
-                                     "end"
-  
-  <> Definition >                    "def" tk:identifier "=" Program "."
-  
-  
-  <> identifier > c:id (c:id | c:num)+
-  
-  <> StringLiteral > "\"" "\""
-  
-  <> NumberLiteral > c:num+
+  <> sum > sum "+" num | num 
+
+  <> num > "1" | "2" | "3" | "4" | "5" | "6" | "8" | "9" | "0"
   
    "#;
 
-  let input = "if 'test. then ('trsttrtt')";
+  let input = "1+2+3+7+4+5+6";
 
   let root_path = PathBuf::from("test.sg");
   let mut grammar = RadlrGrammar::new();
@@ -257,7 +238,7 @@ pub fn construct_derror_recovering_erlang_toy() -> RadlrResult<()> {
   if let Some(best) = result.first() {
     for (_, sym) in &best.symbols {
       let str = Printer::new(sym, true, &pkg).to_string();
-      println!("{str}");
+      println!("OPAH! {str}");
       println!("--\n");
       Printer::new(sym, true, &pkg).print_all();
     }

@@ -12,8 +12,6 @@ use crate::{
   types::error_types::{create_empty_rule_error, create_invalid_import_source_error},
   utils::create_u64_hash,
 };
-#[cfg(debug_assertions)]
-use parser::GetASTNodeType;
 use radlr_rust_runtime::types::{bytecode::MatchInputType, Token};
 use std::{collections::HashMap, hash::Hash, path::PathBuf, sync::Arc};
 
@@ -121,13 +119,10 @@ pub fn create_grammar_data(
       ASTNode::Name(name_ast) => {
         name = name_ast.name.as_str();
       }
-      _ => {
-        #[allow(unreachable_code)]
-        {
-          #[cfg(debug_assertions)]
-          unreachable!("Unrecognized node: {:?}", preamble.get_type());
-          unreachable!()
-        }
+      node => {
+        return Err(
+          RadlrError::from_source_token(&node.to_token(), grammar_path.clone(), "Unsupported preamble", "Unsupported preamble", ErrorId(ErrorClass::Grammar, 99, "unsupported-preamble"), RadlrErrorSeverity::Warning)
+        )
       }
     }
   }
@@ -219,15 +214,18 @@ pub fn extract_nonterminals<'a>(
           }
           (_, Some(name_sym)) => {
             let import_grammar_name = name_sym.module.to_string().intern(s_store);
-            let import_g_id = o_to_r(g_data.imports.get(&import_grammar_name), "could not find grammar E")?;
+            let import_g_id = o_to_r(g_data.imports.get(&import_grammar_name), "could not find grammar E")?; // <- TODO: Change this to a source error
             let (guid_name, f_name) = nterm_names(name_sym.name.as_str(), import_g_id, s_store);
             let id = NonTermId::from((import_g_id.guid, name_sym.name.as_str()));
             nterms.push((create_bare_nonterm_struct(id, guid_name, f_name, import_g_id, tok), prod_rule));
           }
+          // Unreachable due to AppendRules guarantee that `name_sym`` is either NonTerm or ImportNonTerm
           _ => unreachable!(),
         };
       }
-      _ast => unreachable!("Unrecognized node "),
+      node => return Err(
+        RadlrError::from_source_token(&node.to_token(), g_data.id.path.to_path(s_store), "Unrecognized rule form", "Unrecognized rule form", ErrorId(ErrorClass::Grammar, 99, "unsupported-rule"), RadlrErrorSeverity::Critical)
+      ),
     }
   }
 
@@ -277,12 +275,13 @@ pub fn process_parse_state<'a>(
         match g.imports.get(&ref_name) {
           Some(id) => (&nterm.tok, id),
           _ => {
-            Err(RadlrError::Text(nterm.tok.blame(1, 1, "Could not resolve nonterm id from node", None)))?;
-            unreachable!()
+            return Err(RadlrError::Text(nterm.tok.blame(1, 1, "Could not resolve nonterm id from node", None)));
           }
         }
       }
-      _ => unreachable!(),
+      _ => return Err(
+        RadlrError::from_source_token(&nonterminal.to_token(), g.id.path.to_path(s), "Could not resolve non-terminal id", "Could not resolve non-terminal id", ErrorId(ErrorClass::Grammar, 99, "unresolved-nonterm-id"), RadlrErrorSeverity::Critical)
+      )
     };
     let name_str = tok.to_string();
     let (guid_name, _) = nterm_names(&name_str, g_id, s);
@@ -913,12 +912,9 @@ fn record_symbol(
       "sym" => SymbolId::ClassSymbol,
       "any" => SymbolId::Any,
       _ => {
-        #[allow(unreachable_code)]
-        {
-          #[cfg(debug_assertions)]
-          unreachable!("unsupported generic {}", gen.val);
-          unreachable!()
-        }
+        return Err(
+          RadlrError::from_source_token(&gen.tok, g_data.id.path.to_path(s_store), "Unrecognized character class", "Unrecognized character class", ErrorId(ErrorClass::Grammar, 99, "unrecognized-char-class"), RadlrErrorSeverity::Critical)
+        )
       }
     },
 
@@ -934,13 +930,10 @@ fn record_symbol(
       return RadlrResult::Ok(id);
     }
 
-    _ => {
-      #[allow(unreachable_code)]
-      {
-        #[cfg(debug_assertions)]
-        unreachable!("Unrecognized node: {:?}", sym_node.get_type());
-        unreachable!()
-      }
+    sym_node => {
+      return Err(
+        RadlrError::from_source_token(&sym_node.to_token(), g_data.id.path.to_path(s_store), "Unrecognized symbol", "Unrecognized symbol", ErrorId(ErrorClass::Grammar, 98, "unrecognized-symbol"), RadlrErrorSeverity::Critical)
+      )
     }
   };
 
@@ -975,9 +968,7 @@ fn get_nonterminal_symbol<'a>(
     ASTNode::Template_NonTerminal_Symbol(sym) => get_nonterminal_symbol(g_data, &sym.name),
     ASTNode::TemplateRules(sym) => (Some(sym.name_sym.as_ref()), None),
     #[cfg(debug_assertions)]
-    node => unreachable!("unknown node: {:#?}", node),
-    #[cfg(not(debug_assertions))]
-    _ => unreachable!(),
+    _ => (None, None),
   }
 }
 
@@ -999,20 +990,20 @@ fn get_nonterminal_id_from_ast_node(g_data: &GrammarData, node: &ASTNode, s_stor
 
       match g_data.imports.get(&ref_name) {
         Some(GrammarIdentities { guid, .. }) => Ok(NonTermId::from((*guid, nterm.name.as_str()))),
-        _ => Err(RadlrError::Text(format!(
-          "in {} ,\n {}",
-          nterm.tok.path_ref(&g_data.id.path.to_path(s_store)),
-          nterm.tok.blame(1, 1, "Could not resolve nonterm id from symbol", None)
-        )))?,
+        _ => {
+          return Err(
+            RadlrError::from_source_token(&nterm.tok, g_data.id.path.to_path(s_store), &format!(
+              "in {}",
+              nterm.tok.path_ref(&g_data.id.path.to_path(s_store)),
+            ), "Could not resolve nonterm id from symbol", ErrorId(ErrorClass::Grammar, 98, "unresolved-nonterm"), RadlrErrorSeverity::Critical)
+          )
+        }
       }
     }
     _ => {
-      #[allow(unreachable_code)]
-      {
-        #[cfg(debug_assertions)]
-        unreachable!("Unrecognized node: {:#?}", node);
-        unreachable!()
-      }
+      return Err(
+        RadlrError::from_source_token(&node.to_token(), g_data.id.path.to_path(s_store), "Symbol is not a valid Non-terminal", "Symbol is not a valid Non-terminal", ErrorId(ErrorClass::Grammar, 98, "invalid-nonterm"), RadlrErrorSeverity::Critical)
+      )
     }
   }
 }

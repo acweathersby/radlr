@@ -1108,3 +1108,74 @@ fn simple_newline_tracking() -> RadlrResult<()> {
     },
   )
 }
+
+
+
+#[test]
+fn test_should_not_panic_on_failed_grammar() -> RadlrResult<()> {
+  compile_and_run_grammars(
+    &[r##"
+    IGNORE { c:nl c:sp c:tab tk:comment }
+
+EXPORT spec as yacc
+
+<> spec   > defs? "%%" rules "%%"?
+
+// --------------- Header Definition --------------------------------
+
+<> defs   > def(+)
+
+<> def    > "$start" id 
+          |  "%union" "{" "}"
+          |  "{" "}"
+          |  rword tag? nlist
+
+<> rword  > "%token" | "%left" | "%nonassoc" | "%type"
+
+<> tag    > "<" id ">"
+
+<> nlist  > nmno | nlist nmno | nlist "," nmno
+
+<> nmno   > id num?
+
+//---------------- Rule Definitions --------------------------------
+
+<> rules   > rule(+)
+
+<> rule    > c_ident (rbody)(+"|") prec? ";"
+
+<> c_ident > id ":"
+
+<> rbody   > ( id act? | tok act? )(+) | "*"
+
+<> prec    > "%prec" id act?
+
+<> act     > "{"  "}"
+
+//---------------- Nontrivial Token Definitions --------------------
+
+<> num     > tk:number
+
+<> number  > c:num(+)
+
+<> id      > tk:ident
+
+<> ident   > c:id ( c:id | c:num | "_" | "-" )(*) 
+
+<> tok     > tk:token
+
+<> token   > "\"" ( c:sym | c:id | c:num | c:sp )(*) "\""
+           | "'"  ( c:sym | c:id | c:num | c:sp )(*) "'"
+
+<> comment > line | block
+
+<> line > '/' "/" ( c:id | c:sp | c:sym | c:num )(*) c:nl
+
+<> block > '/' "*"  ( c:id | c:sp | c:sym | c:num | c:nl )(*) '*' "/"
+        "##],
+    &[],
+    ParserConfig::default().use_lookahead_scanners(true),
+  )
+}
+
+ 

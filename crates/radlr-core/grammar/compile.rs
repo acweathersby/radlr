@@ -70,6 +70,8 @@ fn compile_grammar_data(g_data: GrammarData, g_s: &GrammarSoup) -> RadlrResult<G
   let id = g_data.id;
 
   let (mut nterms, templates, mut parse_states) = extract_nonterminals(&g_data, &g_s.string_store)?;
+
+
   let mut resolved_templates = Map::<NonTermId, Option<Box<NonTerminal>>>::new();
   for nterm in nterms {
     g_s.nonterminals.write().unwrap().push(process_nonterminals(

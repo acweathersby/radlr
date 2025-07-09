@@ -1,7 +1,7 @@
 import { JSBytecodeParserDB } from "js/radlr/radlr_wasm";
-import { NBContentField, NBEditorField } from "./notebook";
-import { Parser } from "./parser";
-import { GrammarDBNode, InputNode } from "./pipeline";
+import { NBContentField, NBEditorField } from "../lab/notebook";
+import { Parser } from "../lab/parser";
+import { GrammarDBNode, InputNode } from "../lab/pipeline";
 
 export function init(
   syntax_field: NBContentField,
@@ -45,7 +45,6 @@ function run_highlighting(input_field: NBEditorField, input: string, db: JSBytec
   let symbols: { start: number, end: number }[] = [];
 
   let args: [number, number, string][] = [];
-
 
 
   parser.on_shift = shift_data => {

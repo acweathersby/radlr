@@ -6,8 +6,12 @@ draft: false
 
 # Grammar Panel
 
-This panel is used to specify the grammar using RADLR's grammar definition format.
+Use this panel to write a grammar specification in the RADLR dialect.
 
-![alt text](./grammar-panel.png)
+---
 
-[RADLR Grammar Reference](../grammar)
+Refer to these articles for more information on writing grammars:
+
+- [Grammar Reference](../../api_reference/grammar/)
+- [Grammar Tutorial](../../tutorials/grammar/)
+- [Example Grammars](../../tutorials/grammar/examples)

@@ -1,5 +1,5 @@
 import radlr_init, * as radlr from "js/radlr/radlr_wasm.js";
-import { LocalStoreKeys, getLocalValue, setLocalValue, setupOpenCloseTriggers } from "./settings-panel";
+import { LocalStoreKeys, getLocalValue, setLocalValue, setupOpenCloseTriggers } from "../lab/settings-modal";
 
 
 /**

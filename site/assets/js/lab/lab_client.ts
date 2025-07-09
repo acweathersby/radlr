@@ -1,7 +1,7 @@
 import { JSParserConfig } from "js/radlr/radlr_wasm";
 import { RadlrError } from "./error";
 import { Eventable } from "./eventable";
-import { LocalStoreKeys, dataStorageWorkflowsEnabled, getLocalValue } from "./settings-panel";
+import { LocalStoreKeys, dataStorageWorkflowsEnabled, getLocalValue } from "./settings-modal";
 import * as radlr from "js/radlr/radlr_wasm";
 import { sleep } from "./pipeline";
 
@@ -38,15 +38,14 @@ abstract class LabEngine extends Eventable<LabEngineEvents> {
       }
 
       this.grammar_db = radlr.create_grammar_db("main", soup, config);
-
+      
       if (soup) soup.free();
 
       this.emit("grammar_db", this.grammar_db);
 
     } catch (e) {
 
-      if (soup) soup.free();
-
+      
       if (e instanceof radlr.PositionedErrors) {
         let l = e.length;
         let error;
@@ -61,8 +60,15 @@ abstract class LabEngine extends Eventable<LabEngineEvents> {
         e.free();
 
         this.emit("compile_errors", errors);
+
+        if (soup) soup.free();
+       
       } else {
+
         console.error(e);
+
+        if (soup) soup.free();
+
         throw e;
       }
     }
@@ -167,13 +173,13 @@ class LabEngineWorkerClient extends LabEngine {
 
         this.emit(l_event.type, l_event.val)
       } else {
-        console.log("Lab Worker: Unhandled message - ", event.data);
+        console.error("Lab Worker: Unhandled message - ", event.data);
       }
     });
 
 
     worker.addEventListener("error", function (error) {
-      console.log(error)
+      console.error(error)
     });
 
     this._ready = new Promise((res, rej) => {
@@ -185,7 +191,7 @@ class LabEngineWorkerClient extends LabEngine {
     });
 
     this._ready.catch(err => {
-      console.log(err)
+      console.error(err)
     })
 
     worker.postMessage({ type: "init", eventData: void 0 });
@@ -229,7 +235,6 @@ export class LabEngineWebsocketClient extends LabEngine {
         res(true);
 
         socket.addEventListener("close", msg => {
-          console.log("Connect closed!");
           this.connected = new Promise(res => res(false));
         })
 
@@ -245,13 +250,11 @@ export class LabEngineWebsocketClient extends LabEngine {
 
           switch (response_code) {
             case radlr.WSResponseCodes.Classification: {
-              console.log("Got  radlr.WSResponseCodes.Classification");
               let classification = radlr.JSParserClassification.deserialize(bytes.slice(1));
               this.emit("parser_classification", classification.to_string());
               classification.free();
             } break;
             case radlr.WSResponseCodes.ByteCode: {
-              console.log("Got  radlr.WSResponseCodes.ByteCode");
               this.emit("parser_bytecode_db", bytes.slice(1));
             }
             default: {
